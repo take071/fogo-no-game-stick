@@ -1,0 +1,16 @@
+# Never commit: firmware images, ROMs/BIOS, converted games, saves, card backups
+*.img
+*.bak*
+*.bin
+*.cue
+*.chd
+*.pbp
+*.PBP
+*.srm
+*.state*
+*.gba
+*.zip
+*.7z
+# proprietary/unknown-origin binary of the timer (source not available)
+gtimer
+__pycache__/
