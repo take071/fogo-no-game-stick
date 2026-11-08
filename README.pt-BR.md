@@ -2,7 +2,7 @@
 
 🇺🇸 [Read in English](README.md)
 
-Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite** genérico (placa vermelha, firmware "V5 Base TG", menu MiniGUI + RetroArch 1.7.4). Tudo foi feito a partir de um PC com Fedora, sem instalar RetroArch e sem rodar código ARM no x86_64.
+Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite** genérico (placa vermelha, firmware "V5 Base TG", menu MiniGUI + RetroArch 1.7.4). Tudo foi feito a partir de um PC com Linux Fedora, sem instalar RetroArch e sem rodar código ARM no x86_64.
 
 > **Projeto em andamento.** Este repositório registra o que funcionou, o que foi tentado e abandonado e o que ainda está pendente. As afirmações são marcadas:
 > **[medido]** visto em log/comando · **[inferido]** deduzido, sem confirmação · **[hipótese]** suspeita sem prova · **[pendente]** ainda não testado.
