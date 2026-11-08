@@ -2,7 +2,7 @@
 
 🇧🇷 [Leia em português](README.pt-BR.md)
 
-Notes, scripts and findings from modding a generic **Game Stick 4K Lite** (red board, firmware "V5 Base TG", MiniGUI menu + RetroArch 1.7.4). Everything was done from a Fedora PC, without installing RetroArch and without running ARM code on x86_64.
+Notes, scripts and findings from modding a generic **Game Stick 4K Lite** (red board, firmware "V5 Base TG", MiniGUI menu + RetroArch 1.7.4). Everything was done from a Fedora linux PC, without installing RetroArch and without running ARM code on x86_64.
 
 > **Work in progress.** The project is not finished. This repo records what worked, what was tried and dropped, and what is still pending. Claims are tagged:
 > **[measured]** seen in a log/command · **[inferred]** deduced, not confirmed · **[hypothesis]** suspicion without proof · **[pending]** not tested yet.
