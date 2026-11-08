@@ -4,7 +4,7 @@
 
 ## Result
 
-**It worked.** Battles are faster; the map, menus and out-of-battle text stay at normal speed and smooth.
+**It worked.** Here "battles" means the turn-based **Pokémon battles** of the GBA hacks. They are faster; the map, menus and out-of-battle text stay at normal speed and smooth.
 
 - `fastforward_ratio` in use: **3.0**. **2.5 was also tested and felt "perfect"**: it is the reference value if you want something more moderate.
 - Where to change it: `timer/gbx_mod.cfg`, or `scripts/config/set_fastforward.sh 2.5`.

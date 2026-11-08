@@ -7,6 +7,8 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 > **Projeto em andamento.** Este repositório registra o que funcionou, o que foi tentado e abandonado e o que ainda está pendente. As afirmações são marcadas:
 > **[medido]** visto em log/comando · **[inferido]** deduzido, sem confirmação · **[hipótese]** suspeita sem prova · **[pendente]** ainda não testado.
 
+> **Sobre as "batalhas":** neste repositório, "batalhas" sempre significa as **batalhas por turnos dos hacks de Pokémon para GBA** (PK GS Chronicles 2.7.4 e Stone Dragon 3, ambos baseados em FireRed). O ajuste de velocidade (`fastforward_ratio`) é aplicado aos jogos de GBA abertos pelo hook, mas o efeito visível é só nessas batalhas; mapa, menus e texto ficam na velocidade normal. O Pokémon Mystery Dungeon não tem batalhas por turnos, e os outros consoles (PS1, arcade) não são afetados.
+
 > ⚠️ Use por sua conta e risco. Faça backup antes de mexer na partição do firmware. Os caminhos usam `/run/media/user/<LABEL>` como ponto de montagem do cartão; troque pelo seu.
 
 ## Visão geral do aparelho
@@ -28,8 +30,8 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 | 2 | Saves/states redirecionados para `saves/` e `states/` alterando o squashfs | ✅ saves novos caem nas pastas novas **[medido]** | [02](docs/pt-BR/02-saves-e-capas.md) |
 | 3 | Capas (libretro-thumbnails) para todos os jogos reconhecidos | ✅ baixadas · ❓ exibição no menu não confirmada | [02](docs/pt-BR/02-saves-e-capas.md) |
 | 4 | "Enhanced Resolution" do PS1 + ferramentas de medição de RAM/CPU | ✅ aplicada · ❓ efeito/custo reais não isolados | [03](docs/pt-BR/03-graficos-e-consumo.md) |
-| 5 | Batalhas de Pokémon mais rápidas (`fastforward_ratio` via `hook.sh`) | ✅ funciona (2.5 "perfeito", 3.0 em uso) | [04](docs/pt-BR/04-pokemon-avanco-rapido.md) |
-| 6 | Diagnóstico de tela preta / RAM nos hacks de Pokémon | 🔎 várias causas descartadas, causa raiz em aberto | [05](docs/pt-BR/05-diagnostico-tela-preta-ram.md) |
+| 5 | **Batalhas de Pokémon** mais rápidas nos hacks de GBA (`fastforward_ratio` via `hook.sh`) | ✅ funciona (2.5 "perfeito", 3.0 em uso) | [04](docs/pt-BR/04-pokemon-avanco-rapido.md) |
+| 6 | Diagnóstico da tela preta ao abrir a bag **durante uma batalha de Pokémon** e do uso de RAM nos hacks | 🔎 várias causas descartadas, causa raiz em aberto | [05](docs/pt-BR/05-diagnostico-tela-preta-ram.md) |
 | 7 | "00 Timer" (falso jogo que vira cronômetro) + capas feitas por IA | ✅ funciona · ❌ aviso pisca · ❌ fora da lista do arcade | [06](docs/pt-BR/06-timer.md) |
 
 ## O que desistimos de fazer
@@ -46,7 +48,7 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 
 ## O que ainda está pendente
 
-1. **Tela preta ao abrir a bag em batalha (Stone Dragon 3):** rodar o Teste A (`fastforward_ratio = 0`), confirmar o Teste B (remap desativado) e anotar em que segundo a tela fica preta; rodar o medidor `smaps`.
+1. **Tela preta ao abrir a bag durante uma batalha de Pokémon (Stone Dragon 3):** rodar o Teste A (`fastforward_ratio = 0`), confirmar o Teste B (remap desativado) e anotar em que segundo a tela fica preta; rodar o medidor `smaps`.
 2. **Aviso do timer ainda pisca** (`gtimer` é um binário ARM fechado). O resultado do `timer_update3` não foi registrado.
 3. **Timer por cima de um jogo de arcade** não testado (só sobre GBA).
 4. **Confirmar que as capas aparecem no menu** e que os **saves antigos** (Stone Dragon 3, PK GS) carregam depois da troca de pasta.
@@ -60,7 +62,7 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 ## Estrutura do repositório
 
 ```
-docs/en/  docs/pt-BR/     capítulos 01–06 (mesmo conteúdo, dois idiomas)
+docs/en/  docs/pt-BR/     capítulos 01–06 + 07 guia de scripts (mesmo conteúdo, dois idiomas)
 scripts/ps1/              convert_ps1.sh, multidisc_pbp.sh
 scripts/covers/           check_covers.py, missing_covers_manual.py
 scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh
@@ -76,16 +78,27 @@ assets/timer_covers/      10 capas geradas por IA para as entradas "00 Timer"
 - a versão do `hook.sh` para *GBA* (o de `scripts/timer/` é a versão do timer; os dois precisam ser unidos, veja o [doc 06](docs/pt-BR/06-timer.md))
 - o `gtimer` **não** está incluído de propósito (binário ARM fechado, sem fonte, licença desconhecida)
 
-## Scripts: como usar
+## Scripts: início rápido
+
+> Guia completo passo a passo (preparação, cada script, saída explicada, problemas comuns): **[docs/pt-BR/07-guia-de-scripts.md](docs/pt-BR/07-guia-de-scripts.md)**
+
+Os scripts do PC precisam do cartão montado e de duas variáveis de ambiente:
 
 ```bash
-export SD=/run/media/user/<LABEL>          # ponto de montagem do cartão
-export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager
-scripts/ps1/convert_ps1.sh --dry-run       # só mostra o que faria
-scripts/ps1/convert_ps1.sh                 # converte, mantém os originais
-scripts/ps1/convert_ps1.sh --delete        # também apaga os originais (só depois de testar no aparelho!)
-python3 scripts/covers/check_covers.py     # jogos sem capa
+lsblk; ls /run/media/$USER/                # descubra o label do seu cartão
+export SD=/run/media/$USER/<LABEL>         # ponto de montagem do cartão (partição de dados)
+export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager   # só para converter PS1
 ```
+
+| Quero... | Rode |
+|---|---|
+| Converter jogos de PS1 para PBP (mantém originais) | `scripts/ps1/convert_ps1.sh --dry-run`, depois sem `--dry-run` |
+| Também apagar originais (depois de testar no aparelho) | `scripts/ps1/convert_ps1.sh --delete` |
+| Ver quais jogos estão sem capa | `python3 scripts/covers/check_covers.py` |
+| Mudar a velocidade das batalhas de Pokémon | `scripts/config/set_fastforward.sh 2.5` |
+| Ligar/desligar a Enhanced Resolution do PS1 | `scripts/config/set_enhanced_resolution.sh enabled` |
+| Ejetar o cartão com segurança | `lsblk`, depois `scripts/config/eject.sh /dev/sdb` |
+| Ler RAM/CPU do log | `scripts/debug/avg_per_game.sh` |
 
 Os scripts daqui são versões limpas dos usados no projeto: caminhos viraram variáveis, há `--dry-run` e apagar originais agora é opcional. Os dois scripts do timer que rodam no aparelho ficaram **idênticos byte a byte** ao que está no stick, porque editar sem testar um hook de boot pode quebrar o menu.
 

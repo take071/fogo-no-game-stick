@@ -4,7 +4,7 @@
 
 ## Resultado
 
-**Funcionou.** As batalhas estão mais rápidas; mapa, menus e texto fora da batalha seguem na velocidade normal e fluidos.
+**Funcionou.** Aqui "batalhas" são as **batalhas de Pokémon** por turnos dos hacks de GBA. Elas estão mais rápidas; mapa, menus e texto fora da batalha seguem na velocidade normal e fluidos.
 
 - `fastforward_ratio` em uso: **3.0**. **2.5 também foi testado e ficou "perfeito"**: é o valor de referência se quiser algo mais moderado.
 - Onde mudar: `timer/gbx_mod.cfg`, ou `scripts/config/set_fastforward.sh 2.5`.
