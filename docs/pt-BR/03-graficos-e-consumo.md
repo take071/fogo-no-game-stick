@@ -20,7 +20,7 @@ Resultado:
 - Bordas ainda serrilhadas e texturas pixeladas. A opção não aumenta a resolução das texturas do PS1; em 480x272 o ganho esperado é modesto **[inferido]**.
 - A comparação não é rigorosa: as fotos eram de cenas diferentes.
 - Não houve backup antes (o script novo faz). Para voltar: `set_enhanced_resolution.sh disabled`.
-- Na saída colada do `grep`, `no_main` apareceu sem a aspa final. Provável erro de cópia, **integridade não confirmada** [pendente]: `grep neon retro_lib/retroarch-core-options.cfg`.
+- Na saída colada do `grep`, `no_main` apareceu sem a aspa final. Provável erro de cópia. **O autor conferiu o arquivo de opções** [testado pelo autor]; o `consumption_report.sh` agora também faz essa checagem e a registra no [doc 08](08-consumo-medido.md).
 
 Não aplicado: shader leve (`sharp-bilinear`/`xbr`; a pasta `retroarch/shaders` existe mas não foi listada), texturas em alta (o PCSX-ReARMed não suporta).
 
@@ -66,8 +66,17 @@ O valor real do PK GS parece ser ~78 MB (sessão limpa). As de 109–110 MB coin
 
 ## Pendências
 
-1. Custo de CPU da Enhanced Resolution: Castlevania ~2 min com a opção ligada vs. os 49% de antes.
-2. PK GS: abrir só ele ~2 min, sair e rodar `tail -30 timer/hook.log`; `rss` ~78 MB confirma o erro de atribuição.
-3. Integridade do arquivo de opções (`grep neon`).
-4. Fotos do mesmo ponto do jogo, com a opção ligada e desligada.
+O autor já fez os testes 1, 3 e 4 abaixo (custo de CPU da Enhanced Resolution, integridade do arquivo de opções e comparação visual) [testado pelo autor], mas **os números não foram guardados no repositório**. Para registrá-los e responder às pendências 1, 2 e 3 de uma vez:
+
+```bash
+export SD=/run/media/$USER/<LABEL>
+scripts/debug/consumption_report.sh     # em português: scripts/pt-BR/debug/relatorio_consumo.sh
+```
+
+O comando só **lê** o `timer/hook.log` e o `retroarch-core-options.cfg` e gera o [doc 08](08-consumo-medido.md) com RAM/CPU por jogo e por sessão, o estado atual do NEON e a checagem de integridade.
+
+1. Custo de CPU da Enhanced Resolution: Castlevania ~2 min com a opção ligada vs. os 49% de antes. *(feito pelo autor; números no doc 08)*
+2. PK GS: abrir só ele ~2 min, sair e gerar o relatório; `rss` ~78 MB confirma o erro de atribuição (a sessão suspeita vem marcada com ⚠).
+3. Integridade do arquivo de opções (`grep neon`). *(feito; o relatório repete a checagem)*
+4. Fotos do mesmo ponto do jogo, com a opção ligada e desligada. *(feito pelo autor)*
 5. `smaps_log.txt`: só nasce em jogo de GBA, após 15 s.

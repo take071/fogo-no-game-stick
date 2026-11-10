@@ -2,7 +2,7 @@
 
 [← voltar](../../README.pt-BR.md)
 
-Todos os scripts ficam em `scripts/`. Os de `ps1/`, `covers/`, `config/` e `debug/` rodam **no seu PC Linux** com o cartão do stick conectado. Os de `timer/` rodam **dentro do stick**.
+Todos os scripts ficam em `scripts/`. **Versões em português** (comentários e mensagens traduzidos, mesmo comportamento) ficam em `scripts/pt-BR/`; veja `scripts/pt-BR/LEIA-ME.md` para a tabela de nomes. As marcas da saída também são traduzidas nessas versões (ex.: `[corrigido]`, `[SEM BIN]`, `[converter]`, `[pular]`, `[ERRO]` no lugar de `[fix]`, `[NO BIN]`, `[conv]`, `[skip]`, `[ERROR]`). Os de `ps1/`, `covers/`, `config/` e `debug/` rodam **no seu PC Linux** com o cartão do stick conectado. Os de `timer/` rodam **dentro do stick**.
 
 ## 1. Preparação (uma vez)
 
@@ -67,7 +67,7 @@ scripts/ps1/convert_ps1.sh --delete             # apaga .cue/.bin/.chd de quem t
 
 A apagada é definitiva. A BIOS (`scph*`, `bios*`) nunca é apagada.
 
-### PBP multi-disco (ainda não testado num jogo real): `scripts/ps1/multidisc_pbp.sh`
+### PBP multi-disco (testado pelo autor, funciona): `scripts/ps1/multidisc_pbp.sh`
 
 Para jogos com vários discos, já convertidos em PBPs separados (`Nome (Disc 1).PBP`, `Nome (Disc 2).PBP`...):
 
@@ -147,6 +147,15 @@ scripts/debug/per_session.sh       # RAM máxima por sessão de jogo
 
 `rss` é a RAM do RetroArch; `cpu_avg` é `dtick/5` (~100% = um núcleo inteiro). Cuidado com a atribuição errada de amostras do PK GS (doc 03).
 
+**Gerar o relatório em Markdown** (substitui ler esses números na mão; também confere o arquivo de opções e mostra o estado do NEON):
+
+```bash
+scripts/debug/consumption_report.sh               # gera docs/pt-BR/08-consumo-medido.md e docs/en/08-measured-consumption.md
+scripts/debug/consumption_report.sh --lang pt     # só o de português
+```
+
+Só lê o cartão. Sessões com RAM máxima muito diferente para o mesmo jogo saem marcadas com ⚠ (possível atribuição errada). Depois revise e faça o commit dos arquivos gerados.
+
 ---
 
 ## 7. Scripts do timer no stick: `scripts/timer/hook.sh` e `run.sh`
@@ -198,5 +207,6 @@ python3 scripts/config/hist.py clear       # apaga tudo
 | `[error] .../game/ps1 not found` | `SD` aponta para o lugar errado ou o cartão não está montado |
 | `psxpackager: Permission denied` | `chmod +x "$PSX"` |
 | `ModuleNotFoundError: PIL` | `sudo dnf install python3-pillow` |
+| `[erro] não achei a raiz do repositório` | rode o relatório de dentro do repositório ou defina `OUT=/caminho/do/repo` |
 | `[refused] ... is not a removable device` | você passou o disco errado; use o do cartão, conferido com `lsblk` |
 | Erro de entrada/saída no terminal | o cartão caiu e voltou com outro nome; `cd ~`, confira com `lsblk` e redefina `SD` |

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Merge several single-disc PBPs into ONE multi-disc PBP (via .m3u).
-# STATUS: not tried on a real multi-disc game yet. In PSXPackager 1.6.2 (tested with
-# synthetic discs) there is NO extraction flag: passing a .pbp to -i already
+# STATUS: tested on a real multi-disc game and it worked (author report, see doc 01).
+# In PSXPackager 1.6.2 there is NO extraction flag: passing a .pbp to -i already
 # extracts it to .bin/.cue, and an .m3u in -i builds one multi-disc PBP.
 # CAUTION: "-x" means "overwrite without asking", NOT "extract".
 # Keep your original PBPs until you have tested the result on the stick.

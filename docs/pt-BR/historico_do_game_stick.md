@@ -129,7 +129,7 @@ python3 scripts/config/hist.py del 55      # remove um jogo pelo GameID
 python3 scripts/config/hist.py clear       # apaga tudo
 ```
 
-`show` só lê. Os outros **escrevem no cartão**: ejete com segurança antes de usá-lo no aparelho. Os nomes só aparecem para os `GameID` cadastrados em `games.db`. Os outros aparecem como `(name not found)`.
+`show` só lê. Os outros **escrevem no cartão**: ejete com segurança antes de usá-lo no aparelho. Os nomes só aparecem para os `GameID` cadastrados em `games.db`. Os outros aparecem como `(name not found)` (na versão em português do script, `scripts/pt-BR/config/hist.py`, como `(nome não encontrado)`).
 
 ---
 

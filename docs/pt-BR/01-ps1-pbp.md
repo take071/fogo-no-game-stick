@@ -30,7 +30,7 @@ O PSXPackager falhava em todos os jogos com `Could not find file '...bin'`. Os `
 - **Casamento por `difflib` removido:** ele podia ligar vários `FILE` ao mesmo `.bin`.
 - **`.chd` não é suportado** pelo PSXPackager 1.6.2 **[medido]**. Agora o script imprime uma linha `[chd]` com o comando `chdman extractcd` em vez de falhar. Extraia antes (pacote `mame-tools`).
 
-## Multi-disco (Tales of Destiny II): **não testado num jogo real** [pendente]
+## Multi-disco (Tales of Destiny II): **testado no aparelho, funciona** [testado pelo autor]
 
 `scripts/ps1/multidisc_pbp.sh` extrai cada disco de volta para bin/cue, monta um `.m3u` com os `.cue` na ordem e empacota em um PBP multi-disco.
 
@@ -42,4 +42,4 @@ A flag de extração era um palpite na primeira versão. Uma sessão de revisão
 - `-d N` num PBP de 1 disco ignora o `N` e extrai o único disco (rc=0). Para provar que um PBP tem mesmo vários discos, confira o sufixo ` - Disc N` no nome extraído; "gerou um `.cue`" não basta.
 - O código de saída é confiável: `0` sucesso, `1` falha.
 
-O script foi corrigido (sem `EXTRACT_FLAG`). **Ainda falta:** rodar com um jogo multi-disco real e abri-lo no stick (principalmente a troca de disco). Mantenha os PBPs originais até lá.
+O script foi corrigido (sem `EXTRACT_FLAG`). **O autor rodou o script com um jogo multi-disco real e abriu o PBP no stick: funciona** [testado pelo autor; sem log guardado]. Mesmo assim, mantenha os PBPs originais até conferir o seu próprio jogo.

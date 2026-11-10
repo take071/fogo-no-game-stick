@@ -57,13 +57,13 @@ Since the clock is wrong, dates do not say which copy is newer. When copying sav
 
 ### Pending
 
-Old progress (Stone Dragon 3, PK GS) loading after the folder change was **not confirmed** [pending]. Old saves are in `saves/` and also in `game/gba/`.
+Old progress (Stone Dragon 3, PK GS) **loads** after the folder change **[tested by the author]**. Old saves are in `saves/` and also in `game/gba/`.
 
 ## Part B: covers
 
 ### How the menu seems to find covers [hypothesis]
 
-`tbl_game` in `games.db` has no image column and the `picture/` folder is empty. But `game/md/` and `game/ps1/` already had images named like the game. Hypothesis: **the cover is the `.png`/`.jpg` with the same name as the game, in the same folder.** **Not yet confirmed on the device.**
+`tbl_game` in `games.db` has no image column and the `picture/` folder is empty. But `game/md/` and `game/ps1/` already had images named like the game. **Confirmed on the device [tested by the author]:** the cover is the `.png`/`.jpg` with the same name as the game, in the same folder, and it shows in the menu. **It is not yet known whether this holds for ROM hacks** (is "game + same name" enough?): test a hack before relying on it.
 
 ### What was done
 
@@ -76,11 +76,11 @@ Old progress (Stone Dragon 3, PK GS) loading after the folder change was **not c
 ### Limitations
 
 - The repo replaces `&` with `_`; the first version of the script compared asymmetrically and missed 2 games (fixed).
-- Hacks and translations (e.g. "Super Mario World 3 - Hack") are **left without a cover on purpose**, to avoid a wrong image. Add it by hand with the exact name `<game>.png`.
+- Hacks and translations (e.g. "Super Mario World 3 - Hack") are **left without a cover on purpose**, to avoid a wrong image. Add it by hand with the exact name `<game>.png`; **it is not confirmed that the menu shows the cover of a ROM hack** under this rule.
 - Arcade (`cps`) uses short `.zip` names; automatic matching fails for most.
 - GitHub allows 60 requests/hour without login; the script caches in `~/.cache/capas_gamestick`.
 - Some European ROMs got the US art of the same game.
 
-### Pending
+### Confirmed
 
-On the device, open the PS1 menu (Chrono Cross, Crash Bandicoot) and the GBA menu (Golden Sun, Metroid Fusion). If no cover shows, the menu uses another mechanism and the downloaded covers have no effect.
+The author opened the menu on the device and **the covers show** [tested by the author]. Only pending: **ROM hacks** (see above).

@@ -5,7 +5,7 @@
 Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite** genérico (placa vermelha, firmware "V5 Base TG", menu MiniGUI + RetroArch 1.7.4). Tudo foi feito a partir de um PC com Linux Fedora, sem instalar RetroArch e sem rodar código ARM no x86_64.
 
 > **Projeto em andamento.** Este repositório registra o que funcionou, o que foi tentado e abandonado e o que ainda está pendente. As afirmações são marcadas:
-> **[medido]** visto em log/comando · **[inferido]** deduzido, sem confirmação · **[hipótese]** suspeita sem prova · **[pendente]** ainda não testado.
+> **[medido]** visto em log/comando · **[inferido]** deduzido, sem confirmação · **[hipótese]** suspeita sem prova · **[pendente]** ainda não testado · **[testado pelo autor]** conferido no aparelho, sem log/medição guardada · **[observado]** percebido em uso, sem confirmação.
 
 > **Sobre as "batalhas":** neste repositório, "batalhas" sempre significa as **batalhas por turnos dos hacks de Pokémon para GBA** (PK GS Chronicles 2.7.4 e Stone Dragon 3, ambos baseados em FireRed). O ajuste de velocidade (`fastforward_ratio`) é aplicado aos jogos de GBA abertos pelo hook, mas o efeito visível é só nessas batalhas; mapa, menus e texto ficam na velocidade normal. O Pokémon Mystery Dungeon não tem batalhas por turnos, e os outros consoles (PS1, arcade) não são afetados.
 
@@ -26,13 +26,13 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 
 | # | Tema | Resultado | Doc |
 |---|---|---|---|
-| 1 | PS1: conversão CUE/BIN → PBP (corrigindo referências quebradas nos `.cue`) | ✅ 6 jogos convertidos, 10 PBPs no total, testado no aparelho | [01](docs/pt-BR/01-ps1-pbp.md) |
-| 2 | Saves/states redirecionados para `saves/` e `states/` alterando o squashfs | ✅ saves novos caem nas pastas novas **[medido]** | [02](docs/pt-BR/02-saves-e-capas.md) |
-| 3 | Capas (libretro-thumbnails) para todos os jogos reconhecidos | ✅ baixadas · ❓ exibição no menu não confirmada | [02](docs/pt-BR/02-saves-e-capas.md) |
-| 4 | "Enhanced Resolution" do PS1 + ferramentas de medição de RAM/CPU | ✅ aplicada · ❓ efeito/custo reais não isolados | [03](docs/pt-BR/03-graficos-e-consumo.md) |
-| 5 | **Batalhas de Pokémon** mais rápidas nos hacks de GBA (`fastforward_ratio` via `hook.sh`) | ✅ funciona (2.5 "perfeito", 3.0 em uso) | [04](docs/pt-BR/04-pokemon-avanco-rapido.md) |
+| 1 | PS1: conversão CUE/BIN → PBP (corrigindo referências quebradas nos `.cue`) | ✅ 6 jogos convertidos, 10 PBPs no total, testado no aparelho · ✅ PBP multi-disco testado **[testado pelo autor]** | [01](docs/pt-BR/01-ps1-pbp.md) |
+| 2 | Saves/states redirecionados para `saves/` e `states/` alterando o squashfs | ✅ saves novos caem nas pastas novas **[medido]** · ✅ saves antigos carregam **[testado pelo autor]** | [02](docs/pt-BR/02-saves-e-capas.md) |
+| 3 | Capas (libretro-thumbnails) para todos os jogos reconhecidos | ✅ baixadas · ✅ aparecem no menu (nome da capa = nome do jogo) **[testado pelo autor]** · ❓ ROM hacks não confirmado | [02](docs/pt-BR/02-saves-e-capas.md) |
+| 4 | "Enhanced Resolution" do PS1 + ferramentas de medição de RAM/CPU | ✅ aplicada · ✅ custo de CPU/visual/arquivo de opções conferidos pelo autor · números pelo [relatório](docs/pt-BR/08-consumo-medido.md) | [03](docs/pt-BR/03-graficos-e-consumo.md) |
+| 5 | **Batalhas de Pokémon** mais rápidas nos hacks de GBA (`fastforward_ratio` via `hook.sh`) | ✅ funciona (2.5 "perfeito", 3.0 em uso) · ❓ parece melhor em ambientes fechados, não confirmado **[observado]** | [04](docs/pt-BR/04-pokemon-avanco-rapido.md) |
 | 6 | Diagnóstico da tela preta ao abrir a bag **durante uma batalha de Pokémon** e do uso de RAM nos hacks | 🔎 várias causas descartadas, causa raiz em aberto | [05](docs/pt-BR/05-diagnostico-tela-preta-ram.md) |
-| 7 | "00 Timer" (falso jogo que vira cronômetro) + capas feitas por IA | ✅ funciona · ✅ aviso fixo por 15 s, jogo pausado, qualquer botão fecha · ❌ fora da lista do arcade | [06](docs/pt-BR/06-timer.md), [06-1](docs/pt-BR/06-1timer.md) |
+| 7 | "00 Timer" (falso jogo que vira cronômetro) + capas feitas por IA | ✅ funciona · ✅ aviso fixo por 15 s, jogo pausado, qualquer botão fecha · ✅ funciona por cima de jogo de arcade **[testado pelo autor]** · ❌ fora da lista do arcade | [06](docs/pt-BR/06-timer.md), [06-1](docs/pt-BR/06-1timer.md) |
 | 8 | **Aba Histórico** do console: segurar **Start por 3 s** apaga e reinicia o menu; listar/limitar/apagar pelo PC | ✅ funciona no aparelho testado (só um aparelho) | [histórico](docs/pt-BR/historico_do_game_stick.md) |
 | 9 | **Tela cheia** nos jogos (`aspect_ratio_index` de 18 para 1 em três configs) | ❓ aplicada; efeito **não confirmado** (conflita com o doc 04) | [06-1](docs/pt-BR/06-1timer.md) |
 
@@ -52,25 +52,29 @@ Anotações, scripts e descobertas da modificação de um **Game Stick 4K Lite**
 
 1. **Tela preta ao abrir a bag durante uma batalha de Pokémon (Stone Dragon 3):** rodar o Teste A (`fastforward_ratio = 0`), confirmar o Teste B (remap desativado) e anotar em que segundo a tela fica preta; rodar o medidor `smaps`.
 2. **Timer, detalhes restantes:** estalo de áudio quando o jogo retoma, um botão apertado durante a pausa pode chegar ao jogo, e o `killall aplay` também para outros `aplay` ([06-1](docs/pt-BR/06-1timer.md), seção 8).
-3. **Timer por cima de um jogo de arcade** não testado (só sobre GBA).
-4. **Confirmar que as capas aparecem no menu** e que os **saves antigos** (Stone Dragon 3, PK GS) carregam depois da troca de pasta.
-5. **Enhanced Resolution:** custo de CPU (Castlevania ~2 min ligado/desligado) e comparação visual justa; conferir a integridade do arquivo de opções.
-6. **RAM do PK GS:** ~78 MB ou ~110 MB? (problema de atribuição no log).
-7. **PBP multi-disco** (Tales of Destiny II): `-x` era a flag errada (significa *sobrescrever*; extrair não precisa de flag). Script corrigido, ainda não testado num jogo real ([doc 01](docs/pt-BR/01-ps1-pbp.md)).
-8. **Escolher o `fastforward_ratio` final** (2.5 ou 3.0) e, se quiser, limitar só aos jogos de Pokémon.
-9. **Limpar** arquivos de teste e medidores do cartão (lista nos docs [04](docs/pt-BR/04-pokemon-avanco-rapido.md) e [05](docs/pt-BR/05-diagnostico-tela-preta-ram.md)).
-10. Capas de hacks/traduções e dos nomes do arcade (feitas à mão, de propósito).
-11. **Tela cheia:** o [06-1](docs/pt-BR/06-1timer.md) diz que os jogos que não são GBA leem o `gbx66.cfg` do cartão, mas o [04](docs/pt-BR/04-pokemon-avanco-rapido.md) mediu que o stick o ignora; o [03](docs/pt-BR/03-graficos-e-consumo.md) também anotou um viewport de 480x272 contra a saída de 1280x720 do 06-1. Confirmar no stick qual está certo (o GBA usa o `gbx_mod.cfg`, que é realmente lido, então comece por ele).
-12. **Aba Histórico:** limite automático de 15 jogos e apagar um jogo só no aparelho, gancho no boot (hoje o botão só funciona depois que um jogo é aberto), etapa de confirmação, outros aparelhos/firmwares ([doc do histórico](docs/pt-BR/historico_do_game_stick.md), seção 5).
+3. **Registrar os números de consumo (Enhanced Resolution e RAM do PK GS):** o autor já testou a Enhanced Resolution (custo de CPU, comparação visual, integridade do arquivo de opções), mas os números não estão no repositório. Rode `scripts/debug/consumption_report.sh` (ou `scripts/pt-BR/debug/relatorio_consumo.sh`): ele lê o `timer/hook.log` e gera o [doc 08](docs/pt-BR/08-consumo-medido.md). Sobre o PK GS (~78 MB ou ~110 MB?): se a sessão sair marcada com ⚠, abra **só** o PK GS por ~2 min e gere de novo.
+4. **Avanço rápido:** escolher o `fastforward_ratio` final (2.5 ou 3.0) e, se quiser, limitar só aos jogos de Pokémon. O autor percebe que funciona melhor em **ambientes fechados** dos jogos de Pokémon e que **não piora** nada, mas isso **não está confirmado** [observado].
+5. **Limpar** arquivos de teste e medidores do cartão (lista nos docs [04](docs/pt-BR/04-pokemon-avanco-rapido.md) e [05](docs/pt-BR/05-diagnostico-tela-preta-ram.md)).
+6. **Capas de hacks/ROM hacks:** a regra "capa = `.png` com o mesmo nome do jogo" está confirmada para jogos normais, mas **não se sabe se vale para ROM hacks**. As capas de hacks/traduções e dos nomes do arcade são feitas à mão, de propósito.
+7. **Tela cheia:** o [06-1](docs/pt-BR/06-1timer.md) diz que os jogos que não são GBA leem o `gbx66.cfg` do cartão, mas o [04](docs/pt-BR/04-pokemon-avanco-rapido.md) mediu que o stick o ignora; o [03](docs/pt-BR/03-graficos-e-consumo.md) também anotou um viewport de 480x272 contra a saída de 1280x720 do 06-1. Confirmar no stick qual está certo (o GBA usa o `gbx_mod.cfg`, que é realmente lido, então comece por ele).
+8. **Aba Histórico:** limite automático de 15 jogos e apagar um jogo só no aparelho, gancho no boot (hoje o botão só funciona depois que um jogo é aberto), etapa de confirmação, outros aparelhos/firmwares ([doc do histórico](docs/pt-BR/historico_do_game_stick.md), seção 5).
+
+### Resolvido (testes do autor no aparelho)
+
+- ✅ **Timer por cima de um jogo de arcade** funciona (antes só testado sobre GBA).
+- ✅ **Capas aparecem no menu** (a capa é o `.png` com o mesmo nome do jogo) e os **saves antigos carregam** depois da troca de pasta.
+- ✅ **PBP multi-disco** (Tales of Destiny II) testado no stick: funciona.
+- ✅ **Enhanced Resolution:** custo de CPU, comparação visual e integridade do arquivo de opções foram conferidos pelo autor (números: ver item 3).
 
 ## Estrutura do repositório
 
 ```
-docs/en/  docs/pt-BR/     capítulos 01–06 (+ 06-1 detalhes do timer), 07 guia de scripts, capítulo do histórico (mesmo conteúdo, dois idiomas)
+docs/en/  docs/pt-BR/     capítulos 01–06 (+ 06-1 detalhes do timer), 07 guia de scripts, 08 consumo medido (gerado), capítulo do histórico (mesmo conteúdo, dois idiomas)
 scripts/ps1/              convert_ps1.sh, multidisc_pbp.sh
 scripts/covers/           check_covers.py, missing_covers_manual.py
 scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
-scripts/debug/            avg_per_game.sh, per_session.sh (leem timer/hook.log)
+scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh (leem timer/hook.log; o último gera o doc 08)
+scripts/pt-BR/            os mesmos scripts, com comentários e mensagens em português (ver scripts/pt-BR/LEIA-ME.md)
 scripts/timer/            hook.sh (versão do timer, "update 3"), run.sh (final: aviso de 15 s, jogo pausado)
 assets/timer_covers/      10 capas geradas por IA para as entradas "00 Timer"
 ```
@@ -104,10 +108,13 @@ export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager   # só
 | Ligar/desligar a Enhanced Resolution do PS1 | `scripts/config/set_enhanced_resolution.sh enabled` |
 | Ejetar o cartão com segurança | `lsblk`, depois `scripts/config/eject.sh /dev/sdb` |
 | Ler RAM/CPU do log | `scripts/debug/avg_per_game.sh` |
+| Gerar o relatório de consumo (doc 08) | `scripts/debug/consumption_report.sh` |
 | Ver a aba Histórico do console pelo PC | `python3 scripts/config/hist.py show` |
 | Manter só os 15 mais recentes no Histórico | `python3 scripts/config/hist.py trim` |
 
 Os scripts daqui são versões limpas dos usados no projeto: caminhos viraram variáveis, há `--dry-run` e apagar originais agora é opcional. O `convert_ps1.sh` não corrompe mais nomes de `.cue` com acento. No stick, `scripts/timer/run.sh` é a versão final (aviso de 15 s, jogo pausado) e o `scripts/timer/hook.sh` ficou **idêntico byte a byte** ao que roda lá, porque editar sem testar um hook de boot pode quebrar o menu.
+
+> 🇧🇷 **Scripts em português:** a pasta `scripts/pt-BR/` tem cópias com comentários e mensagens em português (`converter_ps1.sh`, `ejetar.sh`, `relatorio_consumo.sh`...). O comportamento é o mesmo; os nomes dos comandos acima valem para a versão em inglês.
 
 ## Regras de segurança mantidas
 

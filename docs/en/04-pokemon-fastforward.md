@@ -8,6 +8,7 @@
 
 - `fastforward_ratio` in use: **3.0**. **2.5 was also tested and felt "perfect"**: it is the reference value if you want something more moderate.
 - Where to change it: `timer/gbx_mod.cfg`, or `scripts/config/set_fastforward.sh 2.5`.
+- **[observed]** The author notices the effect is better in the **closed/indoor areas** of the Pokémon games and that it does **not make the game worse**. It is **not confirmed** that this is a real effect of the setting (no measurement); treat it as a usage impression.
 
 ## How the stick works (discovered)
 

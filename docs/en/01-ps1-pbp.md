@@ -30,7 +30,7 @@ PSXPackager failed on every game with `Could not find file '...bin'`. The `.cue`
 - **`difflib` matching removed:** it could bind several `FILE` lines to the same `.bin`.
 - **`.chd` is not supported** by PSXPackager 1.6.2 **[measured]**. The script now prints a `[chd]` line with the `chdman extractcd` command instead of failing. Extract first (`mame-tools` package).
 
-## Multi-disc (Tales of Destiny II): **not tried on a real game** [pending]
+## Multi-disc (Tales of Destiny II): **tested on the device, it works** [tested by the author]
 
 `scripts/ps1/multidisc_pbp.sh` extracts each disc back to bin/cue, builds an `.m3u` with the `.cue` files in order and packs everything into one multi-disc PBP.
 
@@ -42,4 +42,4 @@ The extraction flag was a guess in the first version. A later review session mea
 - `-d N` on a single-disc PBP ignores `N` and extracts the only disc (rc=0). To prove a PBP really has several discs, check for the ` - Disc N` suffix in the extracted name; "a `.cue` was generated" is not enough.
 - The exit code is reliable: `0` success, `1` failure.
 
-The script was corrected accordingly (no `EXTRACT_FLAG`). **Still missing:** a run with a real multi-disc game and opening it on the stick (especially disc swapping). Keep the original PBPs until then.
+The script was corrected accordingly (no `EXTRACT_FLAG`). **The author ran the script on a real multi-disc game and opened the PBP on the stick: it works** [tested by the author; no log kept]. Still, keep the original PBPs until you have checked your own game.

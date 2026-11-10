@@ -57,13 +57,13 @@ Como o relógio está errado, a data não diz qual cópia é a mais nova. Ao cop
 
 ### Pendente
 
-O progresso antigo (Stone Dragon 3, PK GS) carregar depois da troca de pasta **não foi confirmado** [pendente]. Os saves antigos estão em `saves/` e também em `game/gba/`.
+O progresso antigo (Stone Dragon 3, PK GS) **carrega** depois da troca de pasta **[testado pelo autor]**. Os saves antigos estão em `saves/` e também em `game/gba/`.
 
 ## Parte B: capas
 
 ### Como o menu parece achar as capas [hipótese]
 
-A tabela `tbl_game` do `games.db` não tem coluna de imagem e a pasta `picture/` está vazia. Já em `game/md/` e `game/ps1/` havia imagens com o mesmo nome do jogo. Hipótese: **a capa é o `.png`/`.jpg` com o mesmo nome do jogo, na mesma pasta.** **Ainda não confirmada no aparelho.**
+A tabela `tbl_game` do `games.db` não tem coluna de imagem e a pasta `picture/` está vazia. Já em `game/md/` e `game/ps1/` havia imagens com o mesmo nome do jogo. **Confirmado no aparelho [testado pelo autor]:** a capa é o `.png`/`.jpg` com o mesmo nome do jogo, na mesma pasta, e aparece no menu. **Ainda não se sabe se isso vale para ROM hacks** (basta "jogo + nome" iguais?): teste um hack antes de contar com isso.
 
 ### O que foi feito
 
@@ -76,11 +76,11 @@ A tabela `tbl_game` do `games.db` não tem coluna de imagem e a pasta `picture/`
 ### Limitações
 
 - O repositório troca `&` por `_`; a primeira versão do script comparava de forma assimétrica e perdeu 2 jogos (corrigido).
-- Hacks e traduções (ex.: "Super Mario World 3 - Hack") **ficam sem capa de propósito**, para não associar imagem errada. Coloque à mão com o nome exato `<jogo>.png`.
+- Hacks e traduções (ex.: "Super Mario World 3 - Hack") **ficam sem capa de propósito**, para não associar imagem errada. Coloque à mão com o nome exato `<jogo>.png`; **não está confirmado que o menu mostre a capa de um ROM hack** com essa regra.
 - Arcade (`cps`) usa nomes curtos de `.zip`; a associação automática falha na maioria.
 - O GitHub limita 60 consultas/hora sem login; o script guarda cache em `~/.cache/capas_gamestick`.
 - Algumas ROMs europeias receberam a arte americana do mesmo jogo.
 
-### Pendente
+### Confirmado
 
-Abrir no aparelho o menu de PS1 (Chrono Cross, Crash Bandicoot) e de GBA (Golden Sun, Metroid Fusion). Se nenhuma capa aparecer, o menu usa outro mecanismo e as capas baixadas não têm efeito.
+O autor abriu o menu no aparelho e **as capas aparecem** [testado pelo autor]. Pendente apenas: **ROM hacks** (veja acima).

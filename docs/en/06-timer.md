@@ -58,4 +58,4 @@ sqlite3 -readonly "$DB" "select count(*) from tbl_game; select count(*) from tbl
 2. Go back to the menu and open `mslug` or `kof97`.
 3. At the end, the alert should appear over the game and the stick should say "time's up".
 
-**[pending]** Only verified over a GBA game. It should work the same on arcade (the alert is drawn on screen, and `run.sh` freezes whatever `retroarch` process is running), but that is still a hypothesis.
+**[tested by the author]** Verified over a GBA game **and also over an arcade game: it works**. (The alert is drawn on screen and `run.sh` freezes whatever `retroarch` process is running.)

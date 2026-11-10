@@ -2,7 +2,7 @@
 
 [← back](../../README.md)
 
-All scripts live in `scripts/`. The ones in `ps1/`, `covers/`, `config/` and `debug/` run **on your Linux PC** with the stick's card plugged in. The ones in `timer/` run **inside the stick**.
+All scripts live in `scripts/`. **Portuguese versions** (translated comments and messages, same behaviour) live in `scripts/pt-BR/`; see `scripts/pt-BR/LEIA-ME.md` for the name table. Output tags are translated there too (e.g. `[corrigido]`, `[SEM BIN]`, `[converter]`, `[pular]`, `[ERRO]` instead of `[fix]`, `[NO BIN]`, `[conv]`, `[skip]`, `[ERROR]`). The ones in `ps1/`, `covers/`, `config/` and `debug/` run **on your Linux PC** with the stick's card plugged in. The ones in `timer/` run **inside the stick**.
 
 ## 1. Setup (once)
 
@@ -67,7 +67,7 @@ scripts/ps1/convert_ps1.sh --delete             # deletes .cue/.bin/.chd of game
 
 Deleting is permanent. BIOS files (`scph*`, `bios*`) are never deleted.
 
-### Multi-disc PBP (not yet tried on a real game): `scripts/ps1/multidisc_pbp.sh`
+### Multi-disc PBP (tested by the author, it works): `scripts/ps1/multidisc_pbp.sh`
 
 For games with several discs, already converted to separate PBPs (`Name (Disc 1).PBP`, `Name (Disc 2).PBP`...):
 
@@ -147,6 +147,15 @@ scripts/debug/per_session.sh       # max RAM per play session
 
 `rss` is RetroArch's RAM; `cpu_avg` is `dtick/5` (~100% = one full core). Beware of the PK GS sample misattribution (doc 03).
 
+**Generate the Markdown report** (replaces reading those numbers by hand; it also checks the options file and shows the NEON state):
+
+```bash
+scripts/debug/consumption_report.sh               # writes docs/pt-BR/08-consumo-medido.md and docs/en/08-measured-consumption.md
+scripts/debug/consumption_report.sh --lang en     # English only
+```
+
+It only reads the card. Sessions whose max RAM differs a lot for the same game are flagged ⚠ (possible mis-attribution). Then review and commit the generated files.
+
 ---
 
 ## 7. Timer scripts on the stick: `scripts/timer/hook.sh` and `run.sh`
@@ -198,5 +207,6 @@ python3 scripts/config/hist.py clear       # wipe everything
 | `[error] .../game/ps1 not found` | `SD` points to the wrong place or the card is not mounted |
 | `psxpackager: Permission denied` | `chmod +x "$PSX"` |
 | `ModuleNotFoundError: PIL` | `sudo dnf install python3-pillow` |
+| `[error] could not find the repo root` | run the report from inside the repository or set `OUT=/path/to/repo` |
 | `[refused] ... is not a removable device` | wrong disk; use the card's, checked with `lsblk` |
 | Input/output error in the terminal | the card dropped and came back under another name; `cd ~`, check `lsblk` and set `SD` again |

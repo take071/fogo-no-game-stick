@@ -58,4 +58,4 @@ sqlite3 -readonly "$DB" "select count(*) from tbl_game; select count(*) from tbl
 2. Volte ao menu e abra `mslug` ou `kof97`.
 3. No fim, o aviso deve aparecer por cima do jogo e o stick falar "o tempo acabou".
 
-**[pendente]** Só foi verificado por cima de um jogo de GBA. No arcade deve funcionar igual (o aviso é desenhado na tela, e o `run.sh` congela qualquer processo `retroarch` em execução), mas é só hipótese.
+**[testado pelo autor]** Verificado por cima de um jogo de GBA **e também por cima de um jogo de arcade: funciona**. (O aviso é desenhado na tela e o `run.sh` congela qualquer processo `retroarch` em execução.)

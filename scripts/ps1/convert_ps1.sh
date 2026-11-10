@@ -11,8 +11,6 @@
 # Steps: 1) fix FILE lines in .cue  2) convert  3) normalise extension to .PBP
 #        4) (optional) delete originals. BIOS files (scph*/bios*) are never deleted.
 set -u
-: "${SD:?Set SD to the mount point of the data partition, e.g. SD=/run/media/user/<LABEL>}"
-: "${PSX:?Set PSX to the psxpackager binary, e.g. PSX=\$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager}"
 DRY=0; DELETE=0
 for a in "$@"; do
   case "$a" in
@@ -22,6 +20,8 @@ for a in "$@"; do
     *) echo "unknown option: $a"; exit 1 ;;
   esac
 done
+: "${SD:?Set SD to the mount point of the data partition, e.g. SD=/run/media/user/<LABEL>}"
+: "${PSX:?Set PSX to the psxpackager binary, e.g. PSX=\$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager}"
 D="$SD/game/ps1"
 [ -d "$D" ] || { echo "[error] $D not found"; exit 1; }
 [ -x "$PSX" ] || { echo "[error] $PSX is not executable"; exit 1; }
