@@ -1,85 +1,77 @@
-# 04 · Faster Pokémon battles
-
-[← previous](03-graphics-and-consumption.md) · [← back](../../README.md) · [next: diagnosis →](05-diagnosis-black-screen-ram.md)
+# 04 – Faster Pokémon battles
 
 ## Result
 
-**It worked.** Here "battles" means the turn-based **Pokémon battles** of the GBA hacks. They are faster; the map, menus and out-of-battle text stay at normal speed and smooth.
+**It works.** Battles are faster and the rest of the game (map, menus, text outside battle) keeps normal speed.
 
-- `fastforward_ratio` in use: **3.0**. **2.5 was also tested and felt "perfect"**: it is the reference value if you want something more moderate.
-- Where to change it: `timer/gbx_mod.cfg`, or `scripts/config/set_fastforward.sh 2.5`.
-- **[observed]** The author notices the effect is better in the **closed/indoor areas** of the Pokémon games and that it does **not make the game worse**. It is **not confirmed** that this is a real effect of the setting (no measurement); treat it as a usage impression.
+- `fastforward_ratio` in use: **3.0**.
+- **2.5 I also tested and it felt "perfect"**: it's my reference value if I want something more moderate.
+- Where to change it: `timer/gbx_mod.cfg`, line `fastforward_ratio`.
 
-## How the stick works (discovered)
+## How the stick works (what I found)
 
-- Mount point on the PC: `/run/media/user/<LABEL>`. Emulator **RetroArch**; GBA runs on the **mGBA** core (slot 7).
-- **The stick does NOT use the card's `gbx66.cfg` or `start_game.sh`.** It uses the internal ones in `/usr/local/share/minigui/`. All early `gbx66.cfg` tweaks on the card had no effect.
-  > ⚠️ **Conflict, unresolved:** [06-1](06-1timer.md) (full screen) assumes non-GBA games *do* read the card's `gbx66.cfg`. The two statements cannot both be right. Until tested on the stick, treat the full-screen change for non-GBA games as unconfirmed; GBA uses `timer/gbx_mod.cfg`, which is really read.
-- The internal `start_game.sh` calls `/sdcard/timer/hook.sh` (on the card) before launching RetroArch. **`hook.sh` is our entry point.**
-- "00 Timer" and "zz Timer calibrar" are fake games handled separately by `hook.sh` (ch. 06).
-- Controller: **ShanWan Twin USB Joystick**, which sends **keyboard keys** (Start = `KEY_ENTER`, Select = `KEY_RIGHTSHIFT`, A = `KEY_A`, B = `KEY_B`, Y = `KEY_Y`).
+- Mount point on the PC: `/run/media/take/CD6F-EC8D`.
+- GBA games run on mGBA (slot 7).
+- For these games the stick does **not** use the `gbx66.cfg` or `start_game.sh` from the card root. It uses the internal ones in `/usr/local/share/minigui/`. The real command line, captured during the RAM diagnosis, confirms it:
 
-## Pokémon games (`game/gba/`)
+  ```
+  /usr/bin/retroarch -y 12 -c /usr/local/share/minigui/gbx66.cfg -L /sdcard/retro_lib/mgba_libretro.so /sdcard/game/gba/Stone Dragon 3.gba
+  ```
+
+  So the edits I first made to the card's `gbx66.cfg` had no effect.
+- The internal `start_game.sh` calls `/sdcard/timer/hook.sh` before opening RetroArch. **`hook.sh` is my entry point.**
+- The "Timer" game (`00 Timer`, `zz Timer calibrar`) is a fake game that works as a stopwatch (`gtimer`). `hook.sh` handles it separately.
+- Controller: ShanWan Twin USB Joystick, which sends **keyboard keys** (Start = `KEY_ENTER`, Select = `KEY_RIGHTSHIFT`, A = `KEY_A`, B = `KEY_B`, Y = `KEY_Y`).
+
+## The games
 
 | Game | Base | Note |
 |---|---|---|
 | PK GS Chronicles 2.7.4 | FireRed (`BPRE`) | has battles |
 | Stone Dragon 3 | FireRed (`BPRE`) | has battles |
-| Pokémon Mystery Dungeon | n/a | no turn-based battles |
+| Pokémon Mystery Dungeon | — | no turn-based battles |
 
-## How it works
+## How the solution works
 
-1. `hook.sh` detects slot-7 (GBA) games that are not "Timer".
-2. It launches RetroArch (through `ra_wrap.sh`) with `-c /sdcard/timer/gbx_mod.cfg`, a copy of the internal config with `fastforward_ratio` changed.
-3. Errors go to `timer/ra.err`; the exit code goes to `hook.log`.
+1. `hook.sh` identifies slot 7 (GBA) games that aren't "Timer".
+2. For them it opens RetroArch with `-c /sdcard/timer/gbx_mod.cfg` (a copy of the internal config with a changed `fastforward_ratio`), through `ra_wrap.sh`.
+3. Errors go to `timer/ra.err` and the exit code to `hook.log`.
 
-`gbx_mod.cfg` and `ra_wrap.sh` **will be added to the repo later**.
+I thought the setting would speed up the whole game and **I was wrong**: it only shows in battles. **I can't explain why**; it works, but I haven't investigated the cause.
 
-## What we learned
+## What I gave up on
 
-- The initial hypothesis was that the setting would speed up the whole game. **It was wrong**: the effect only shows in battles. **We cannot explain why**; it works, but the cause was not investigated.
-- GBA is locked at 60 fps by the emulator and animations last a fixed number of frames; a faster stick would not speed anything up.
-
-## Abandoned
-
-| Idea | Reason |
+| Idea | Why |
 |---|---|
-| Root `gbx66.cfg` on the card | The stick uses the internal one |
-| `tools_diag.sh` called from the card's `start_game.sh` | That `start_game.sh` never runs |
-| Fast-forward button (L, Start/Enter, `_btn` codes) | L has a battle function; Start did not speed anything; `_btn` codes do not fit a pad that sends keys |
-| Fast-forward on by timer (`FAST_FORWARD` via stdin) | Refused, never applied |
-| Automatic acceleration by reading game memory | Would need a RetroArch build with memory reading and the battle-flag address per hack |
-| More "performance" | GBA is capped at 60 fps |
-| On-screen FPS counter (`fps_show`) | This build does not draw it; perceived speed was what counted |
+| Tweak the root `gbx66.cfg` | The stick uses the internal one |
+| `tools_diag.sh` from the card's `start_game.sh` | That file never runs |
+| Fast-forward button | L already has a function, Start didn't speed anything up, `_btn` codes don't fit this pad |
+| Auto fast-forward by timer | I refused it |
+| Acceleration by reading game memory | Would need a custom RetroArch and one address per hack |
+| More "performance" | GBA is locked at 60 fps by the emulator |
+| `fps_show` | This build doesn't draw it |
 
-## In-game options (emulator independent)
+## Changing the speed
 
-Text Speed: Fast · Battle Scene: Off · Battle Style: Set.
+```bash
+S=$(ls -d /run/media/take/CD6F* | head -1)
+sed -i 's/^fastforward_ratio = .*/fastforward_ratio = "2.500000"/' "$S/timer/gbx_mod.cfg"
+grep -n '^fastforward_ratio' "$S/timer/gbx_mod.cfg"
+sync
+```
 
-## Files and backups on the card
+## Cleanup still to do
 
-| File | Purpose |
-|---|---|
-| `timer/hook.sh` | entry point; launches RetroArch with `gbx_mod.cfg` |
-| `timer/hook.sh.bak_diag2` | original `hook.sh`, before the RetroArch block |
-| `timer/hook.sh.bak_ev` / `bak_dbg` / `bak_auto` | intermediate versions |
-| `timer/gbx_mod.cfg` | config used by GBA games (tune speed here) |
-| `timer/gbx_mod.cfg.bak_20` | config with speed 2.0 |
-| `timer/cfg_interno.cfg` | copy of the original internal config (`fastforward_ratio = 0.0`) |
-| `gbx66.cfg.bak_ff`, `start_game.sh.bak_diag` | backups of ineffective root tweaks |
+- `tools_diag.sh` and the `sh /sdcard/tools_diag.sh` line in the card's `start_game.sh` (`cp start_game.sh.bak_diag start_game.sh`).
+- `timer/diag2.sh`, `timer/ff.cfg`, `timer/snippet*.txt`, `timer/ev.event*`, `timer/ra.err`.
+- Check `hook.sh` with `sed -n 4,6p timer/hook.sh`: the `evtest` line and the `-v` should be gone.
+- In-game options that cut even more time: Text Speed: Fast, Battle Scene: Off, Battle Style: Set.
 
 ## Undo everything
 
 ```bash
-S=/run/media/user/<LABEL>
-cp "$S/timer/hook.sh.bak_diag2" "$S/timer/hook.sh"   # original hook, no modified RetroArch
-cp "$S/start_game.sh.bak_diag" "$S/start_game.sh"    # removes the tools_diag.sh line
+S=$(ls -d /run/media/take/CD6F* | head -1)
+cp "$S/timer/hook.sh.bak_diag2" "$S/timer/hook.sh"
+cp "$S/start_game.sh.bak_diag" "$S/start_game.sh"
 sync
 ```
-
-## Optional cleanup (pending)
-
-1. Remove `tools_diag.sh` and the `sh /sdcard/tools_diag.sh` line from the card's `start_game.sh`; `timer/diag2.sh`, `timer/ff.cfg`, `timer/snippet*.txt`, `timer/ev.event*`, `timer/ra.err`.
-2. Confirm `hook.sh` is clean: `sed -n 4,6p timer/hook.sh` (the `evtest` line and `-v` must be gone; the `-c /sdcard/timer/gbx_mod.cfg` line must remain).
-3. `input_hold_fast_forward = "enter"` in `gbx_mod.cfg` does nothing useful; keep it or set it back to `"l"`.
-4. Restrict the tweak to Pokémon only (today it applies to all of slot 7 except Timer). Nobody reported a problem.

@@ -1,89 +1,86 @@
-# 05 · Diagnosis: black screen and RAM in the Pokémon hacks
+# 05 – Black screen in the bag during battle, and RAM use in the hacks
 
-[← previous](04-pokemon-fastforward.md) · [← back](../../README.md) · [next: timer →](06-timer.md)
+Legend: **[measured]** seen in a log/command · **[inferred]** deduced · **[hypothesis]** no proof · **[pending]** not tested
 
-Legend: **[measured]** · **[hypothesis]**.
+## What bothers me
 
-## Reported problems
-
-1. Stone Dragon 3 (SD3) slow in battles; wanted smoothness in all Pokémon games.
-2. Opening the bag **during a battle** in SD3 turns the screen black instantly; sound continues but stutters. Outside battle the bag works.
-3. PK GS was slow after leaving SD3.
-4. The timer's "TEMPO ACABOU" image flickers (ch. 06). **Fixed later**, see [06-1](06-1timer.md).
-5. Sprout Tower (PK GS) ran at normal speed.
-
-## System [measured]
-
-- RetroArch 1.7.4, 1 core @ 1008 MHz, ~230 MB usable RAM, no swap.
-- mGBA at `retro_lib/mgba_libretro.so` (710052 bytes, from 2018), listed as "ORIGINAL" in the vendor's `readme.txt`.
-- The `game` frontend (menuguide) stays in RAM all the time: **~64 MB**.
-- Both ROMs are FireRed (`BPRE`) v0, save type `FLASH1M_V103`, 32 MB each. SD3 has a correct header checksum; PK GS does not (mGBA ignores it).
+1. In Stone Dragon 3 (SD3), opening the bag **during a battle** turns the screen black at once. Sound continues but stutters. Outside battle the bag works.
+2. PK GS was slow after leaving SD3.
+3. SD3 uses ~33 MB more RAM than PK GS, with ROMs of the same size (32 MB).
 
 ## Ruled out
 
 | Hypothesis | Result |
 |---|---|
-| Faulty card | `fsck.exfat` clean, 4.4 GB read with no error. I/O errors came from **USB drops** (`sda` → `sdb`) |
-| Something "stuck" between games | `procs` empty after each game, same config checksum, free memory back to ~163 MB |
-| Corrupt ROM | SD3 header intact, same save type (does not prove the hack has no bug) |
-| Start button tied to fast-forward | Dropped on request |
-| `mgba_idle_optimization` | Set to `Remove Known` in SD3's `.opt`: **black screen persisted** |
-| Newer mGBA core (`mgba_new.so`) | Menu worked; **same black screen and speed** |
-| gpSP (`mame2003_libretro.so`) | **No game opened** (looks for a missing `gba_bios.bin`). Reverted |
-| CPU/GPU frequency | Only one frequency; `performance` had nothing to unlock |
+| Bad card | `fsck.exfat` clean, 4.4 GB read with no errors. The "I/O errors" came from **USB drops** (the device kept moving from `sda` to `sdb`) |
+| Something "stuck" between games | `procs` empty after each game, same config checksum, free memory returns to ~163 MB |
+| Corrupted ROM | SD3 header intact and same save type (`FLASH1M_V103`) in both. Doesn't prove the hack has no bug |
+| `mgba_idle_optimization` | Changed to `Remove Known`. Black screen persisted |
+| Newer mGBA (buildbot) | Menu worked; black screen and speed identical |
+| gpSP | No GBA game opened (it wants `gba_bios.bin`, which isn't on the card). Reverted |
+| CPU/GPU frequency | Only one exists; `performance` had nothing to unlock |
+| Runtime patch, compressed ROM, rewind, auto savestate, save difference, core options | Checked on the card: none explains the RAM |
+| `performance` still written in `ra_wrap.sh` | Not anymore; the script only reads governor/devfreq |
 
-Ruled out in the RAM session (read-only checks on the card): runtime patching (`.ips/.bps/.ups`), compressed ROM (both are plain `.gba` of 33554432 bytes), rewind (`rewind_enable = "false"`), savestate auto load/save (`false`), different save sizes (both 131072 bytes), core options in SD3's `.opt` (nothing reserves memory; PK GS has no `.opt`), and `performance` writes in `ra_wrap.sh` (none; it only reads governor/devfreq).
+## New measurement: `smaps` of Stone Dragon 3 **[measured]**
 
-## Measurements [measured]
+I ran the diagnostic with SD3 open (samples every 10 s, kernel 4.4.194, no swap, no zram).
 
-| Game | RetroArch RAM (`rss`) | Free RAM | CPU |
-|---|---|---|---|
-| PS1 (Castlevania) | ~43 MB (peak ~48) | ~17 to 49 MB | ~60–70% (`dtick` ~290–365) |
-| PK GS (GBA) | ~78 MB | ~34 MB | ~93% (`dtick` ~467) |
-| Stone Dragon 3 (GBA) | ~110–112 MB | **~3 to 6 MB** | ~93% |
+| Moment (uptime) | RetroArch RSS | Anonymous memory | MemFree | MemAvailable |
+|---|---|---|---|---|
+| 306 s (opening) | ~2 MB | 0.3 MB | 160 MB | 168 MB |
+| 316 s | ~55 MB | ~51 MB | 75 MB | 120 MB |
+| 326 s | ~112 MB | ~104.5 MB | 6.5 MB | 49.9 MB |
+| 337–377 s | ~112 MB (fixed) | ~104.9 MB | ~6 MB | ~49.5 MB |
 
-- GBA hacks use more RAM than PS1 (PK GS ~1.8x; SD3 ~2.6x).
-- SD3 uses ~33 MB more than PK GS **with same-size ROMs**: cause unknown.
-- At ~93% of one core there is almost no headroom.
-- RetroArch **does not crash** at the black screen: `rc=0`, high `dtick`, clean `ra.err`.
-- In the SD3 log: `rss` climbs ~21 MB → ~75 MB → ~110 MB in ~10 s and then **stays fixed** at ~110636 kB (looks like a one-off allocation, not a leak); `livre` constant ~5.9 MB.
+What it shows:
 
-## Open hypotheses
+- **The RAM is real, not cache.** Of ~112 MB RSS, about **105 MB is anonymous memory** (`Anonymous` = `Private_Dirty`); only ~5.6 MB is clean file pages. This **knocks down** my earlier hypothesis that the 33 MB gap was just mapped file pages.
+- **"3–6 MB free" was misleading.** `MemFree` sits at ~6 MB, but `MemAvailable` sits at ~49 MB. `Cached` (~72 MB) includes ~28 MB of `Shmem`, which can't be released without swap.
+- **Memory pressure happened only during loading.** Between 316 s and 326 s there were `allocstall` = 10 and ~2800 pages scanned in *direct reclaim* (`pgscan_direct_normal`). After that the counters stayed still. `pswpin/pswpout` = 0 (no swap).
+- **I still don't know** why SD3 uses 33 MB more than PK GS. I need the same `smaps` on PK GS **[pending]**.
+- **Limit of this measurement:** none of the samples caught a battle or the open bag, so it **doesn't explain the black screen**. It only shows that, idle, there's no sustained memory squeeze **[inferred]**.
 
-1. **Memory pressure causes the black screen.** Consistent with low RAM and sound continuing, but the log does not show the moment of the black screen.
-2. **CPU overload** when opening the bag in battle (sound stutters). No proof: no timestamp was noted.
-3. **`fastforward_ratio` makes it worse** (it only acts in battle and the black screen only happens in battle). **Test A (`0.000000`) was not done.**
-4. **Something in SD3's remap** (`input_libretro_device_p1 = "5"`, absent in PK GS). The remap is already `Stone Dragon 3.rmp.off` (Test B applied), but **the bag result was not noted**.
-5. **The hack itself** behaves like this on the stick's hardware. A PC test with `mgba-qt` was declined.
-6. **`performance` caused the `rc=139`** (menuguide crash). They stopped after reverting `performance`, `video_threaded`, `video_font_enable`, `history_list_enable` and `drop_caches` **together**; the exact cause was not isolated.
-7. **The RAM "arithmetic":** base ~43 MB + ROM suggests one ROM copy in PK GS and two in SD3. It fits numerically, but no mechanism was found.
-8. **`rss` includes mapped file cache (discardable).** If so, the "3–6 MB free" is misleading and low RAM probably does **not** cause the black screen. `smaps` separates anonymous from file memory.
+## Hypotheses still open
 
-## `smaps` meter (inserted, NOT yet tested on the stick)
-
-Inserted into `ra_wrap.sh` between the `# smaps_ini` and `# smaps_fim` markers (lines 26 to 41), before `/usr/bin/retroarch "$@"`. Takes 8 samples every 15 s (~2 min) into `timer/smaps_log.txt`: `MemFree`, `MemAvailable`, `Cached`, `AnonPages`, `Mapped`, `VmRSS`/`RssAnon`/`RssFile` and the 8 largest mappings. No backup of `ra_wrap.sh` (author's decision); the marked block can be removed without a copy.
+1. **[hypothesis]** A memory spike when opening the bag in battle (like the loading spike) makes the kernel reclaim pages and stall video. Fits the sound continuing, not proven.
+2. **[hypothesis]** CPU overload in the battle bag (sound stutters). At ~93% of a core there's no slack.
+3. **[hypothesis]** `fastforward_ratio` makes it worse: it only acts in battle, and the black screen only happens in battle. **Test A was not done.**
+4. **[hypothesis]** Something in the SD3 remap (`input_libretro_device_p1 = "5"`, which PK GS lacks). I already renamed `Stone Dragon 3.rmp` to `.rmp.off`, but **I didn't record whether I repeated the bag afterwards**.
+5. **[hypothesis]** The hack itself behaves this way on the stick's hardware.
+6. **[hypothesis]** `performance` caused the `rc=139` (menu crash). The crashes vanished when I reverted several tweaks at once; the exact cause wasn't isolated.
 
 ## Next tests (one variable at a time)
 
-1. **`smaps`:** eject; PK GS ~2 min on the map; SD3 in battle → open bag → **note after how many seconds it turns black** → ~2 min; exit through the menu. On the PC: `cat timer/smaps_log.txt` and `tail -15 timer/hook.log`.
-2. **Read:** SD3 `RssAnon` ~33 MB bigger = real extra memory (investigate core/hack); difference only in `RssFile` = cache (RAM is probably not the cause); `MemAvailable` of a few MB at bag time = real pressure. If the kernel lacks `RssAnon/RssFile`, ignore those lines. If `smaps_log.txt` never appears, check `[inicio]`/`[amostra]` in `hook.log` and the `/sdcard/timer/` path.
-3. **Test A:** `scripts/config/set_fastforward.sh 0` and open the bag in battle in SD3.
-4. Repeat the bag with the `.rmp` disabled, noting the result.
-5. **Pick the ratio:** measure `dtick` in battles with 2.0, 2.5, 3.0. ~500 in all three = a matter of taste; a drop with a lower ratio = spare CPU.
+1. **Test A:** `fastforward_ratio = "0.000000"` and open the bag in battle on SD3.
+2. **Test B:** repeat with the `.rmp` disabled and **write down the result**.
+3. **Note the second** the screen goes black (since opening the game) to cross it with the samples.
+4. **`smaps` for PK GS** (~2 min on the map) and for SD3 **inside a battle**.
+5. In-game options that cut work: Battle Scene: Off, Text Speed: Fast, Battle Style: Set.
 
-## Clean up the meters at the end
+## The mistake I made while measuring
+
+To run the diagnostic I created a new `hook.sh` that only called `diag_swap.sh` and ended with `exit 1`. **That wiped the real timer `hook.sh`**, and the Timer started opening and closing instantly (see [doc 06](06-timer.md)). Hence the rule: never overwrite `hook.sh` without keeping the original. Swap had nothing to do with that problem.
+
+## Cleaning up the meters at the end
 
 ```bash
-cd /run/media/user/<LABEL>
+cd /run/media/take/CD6F-EC8D
 sed -i '/# smaps_ini/,/# smaps_fim/d' timer/ra_wrap.sh
 sed -i 's#sh /sdcard/timer/ra_wrap.sh -y#/usr/bin/retroarch -y#' timer/hook.sh
 sed -i '/amostra_ps1/d' timer/hook.sh
 sync
 ```
 
-## Cautions
+## Ejecting safely
 
-- Always eject before removing the card/cable (`scripts/config/eject.sh /dev/sdX`); there were USB drops and a "volume not unmounted" warning.
-- A governor changed by script only returns to normal after unplugging the power.
-- Savestates (`.state1`) may not load across different cores; `.srm` saves are unaffected.
-- No general backup; **`saves/` is the only irreplaceable thing** on the card. Quit games through the menu.
+Check the name with `lsblk` (it has changed from `sda` to `sdb`):
+
+```bash
+cd ~
+sync
+udisksctl unmount -b /dev/sdb5
+udisksctl power-off -b /dev/sdb
+```
+
+The `saves/` folder is the only irreplaceable thing on the card.

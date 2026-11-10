@@ -1,7 +1,7 @@
 #!/bin/sh
 END=$1
-DUR=15      # seconds the alert stays on screen
-PAUSAR=1    # 1 = freeze the game before drawing the alert (prevents flicker)
+DUR=15      # segundos que o aviso fica na tela
+PAUSAR=1    # 1 = congela o jogo antes de desenhar o aviso (evita o pisca-pisca)
 LOG=/sdcard/timer/gtimer.log
 echo $$ > /tmp/gtimer.pid
 while :; do
@@ -25,14 +25,14 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 1' INT TERM HUP
 
-# 1) freeze the game BEFORE starting gtimer
+# 1) congela o jogo ANTES de iniciar o gtimer
 if [ "$PAUSAR" = 1 ] && [ -n "$RP" ]; then
   kill -STOP $RP 2>/dev/null
   sleep 0.3 2>/dev/null || sleep 1
 fi
 echo "run.sh: retroarch pid=${RP:-nenhum} pausar=$PAUSAR dur=$DUR" >> $LOG
 
-# 2) alert duration (gtimer reads this file)
+# 2) duração do aviso (o gtimer lê este arquivo)
 echo "$DUR" > /sdcard/timer/aviso.txt
 
 /tmp/gtimer alarm >/dev/null 2>&1 &
