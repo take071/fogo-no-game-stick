@@ -1,6 +1,6 @@
 # Game stick history: wipe it with one button and manage it from a PC
 
-> Versão em português: [README.pt-BR.md](README.pt-BR.md)
+[← back](../../README.md) · 🇧🇷 [Versão em português](../pt-BR/historico_do_game_stick.md)
 
 Notes from reverse-engineering a **Linux-based retro game stick** (closed-source menu at `/usr/bin/game`, MiniGUI-based, games run through RetroArch). The goal was to control the menu's **History** tab: delete games and limit its size.
 
@@ -66,11 +66,11 @@ Replace `USER` with your username and `MYCARD` with your card's name under `/run
 ```bash
 cd /run/media/USER/MYCARD
 mkdir -p histtools
-# copy scripts/sel_limpa.sh from this repository into histtools/
-python3 scripts/make_mold.py       # creates histtools/hist_vazio.sqlite3 (card must be mounted)
+# copy scripts/config/sel_limpa.sh from this repository into histtools/
+python3 scripts/config/make_mold.py       # creates histtools/hist_vazio.sqlite3 (card must be mounted)
 ```
 
-With more than one card, say which: `SD=/run/media/USER/MYCARD python3 scripts/make_mold.py`
+With more than one card, say which: `SD=/run/media/USER/MYCARD python3 scripts/config/make_mold.py`
 
 ### 3.2 Find your button code
 
@@ -89,6 +89,8 @@ Add **one line near the top** of the hook, before any `exit`:
 ```sh
 [ -f /sdcard/histtools/sel_limpa.sh ] && sh /sdcard/histtools/sel_limpa.sh </dev/null >/dev/null 2>&1 &
 ```
+
+In this repo's `scripts/timer/hook.sh` (timer version) that means right after the `echo "hook ..."` line and **before** the `case "$NAME"` block, because the non-Timer branch ends in `exit 1`. In a merged GBA/timer hook, the rule is the same: before the first `exit`.
 
 Check the syntax before saving: `sh -n hook.sh`. A broken hook can stop games from launching.
 
@@ -120,11 +122,11 @@ echo "UNDONE"
 ## 4. Using it from the PC: `hist.py`
 
 ```bash
-python3 scripts/hist.py show        # list (newest first)
-python3 scripts/hist.py trim        # keep only the 15 most recent (one per game)
-python3 scripts/hist.py trim 10     # same, with another limit
-python3 scripts/hist.py del 55      # remove one game by GameID
-python3 scripts/hist.py clear       # wipe everything
+python3 scripts/config/hist.py show        # list (newest first)
+python3 scripts/config/hist.py trim        # keep only the 15 most recent (one per game)
+python3 scripts/config/hist.py trim 10     # same, with another limit
+python3 scripts/config/hist.py del 55      # remove one game by GameID
+python3 scripts/config/hist.py clear       # wipe everything
 ```
 
 `show` only reads. The others **write to the card**: eject it safely before using it in the device. Names only appear for `GameID`s registered in `games.db`; the rest show as `(name not found)`.
@@ -172,7 +174,7 @@ python3 scripts/hist.py clear       # wipe everything
 ## 9. Files
 
 ```
-scripts/
+scripts/config/
   hist.py        manage the history from a PC
   make_mold.py   create the empty template on the card
   sel_limpa.sh   runs on the device: hold Start to wipe and restart the menu

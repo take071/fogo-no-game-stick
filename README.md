@@ -32,7 +32,9 @@ Notes, scripts and findings from modding a generic **Game Stick 4K Lite** (red b
 | 4 | PS1 "Enhanced Resolution" + RAM/CPU measurement tooling | ✅ applied · ❓ real effect/cost not isolated | [03](docs/en/03-graphics-and-consumption.md) |
 | 5 | Faster **Pokémon battles** in the GBA hacks (`fastforward_ratio` through `hook.sh`) | ✅ works (2.5 "perfect", 3.0 in use) | [04](docs/en/04-pokemon-fastforward.md) |
 | 6 | Diagnosis of the black screen when opening the bag **during a Pokémon battle**, and RAM use in the hacks | 🔎 several causes ruled out, root cause open | [05](docs/en/05-diagnosis-black-screen-ram.md) |
-| 7 | "00 Timer" (fake game that works as a timer) + custom cover art | ✅ works · ❌ alert flickers · ❌ not in arcade list | [06](docs/en/06-timer.md) |
+| 7 | "00 Timer" (fake game that works as a timer) + custom cover art | ✅ works · ✅ alert steady for 15 s, game paused, any button dismisses it · ❌ not in arcade list | [06](docs/en/06-timer.md), [06-1](docs/en/06-1timer.md) |
+| 8 | Console **History tab**: hold **Start for 3 s** to wipe it and restart the menu; list/trim/delete from the PC | ✅ works on the tested device (one device only) | [history](docs/en/game_stick_history.md) |
+| 9 | **Full screen** in games (`aspect_ratio_index` 18 → 1 in three configs) | ❓ applied; effect **not confirmed** (conflicts with doc 04) | [06-1](docs/en/06-1timer.md) |
 
 ## What we gave up on
 
@@ -42,38 +44,41 @@ Notes, scripts and findings from modding a generic **Game Stick 4K Lite** (red b
 | Fast-forward button (L / Start / `_btn` codes) | L has a battle function, Start did nothing, pad sends keyboard keys; speed was already good |
 | Auto fast-forward by timer or by reading game memory | Refused / would need a custom RetroArch build and per-hack addresses |
 | Newer mGBA core, gpSP, `performance` governor, threaded video etc. | No gain, or no game opened (gpSP needs a `gba_bios.bin`); reverted |
-| `kill -STOP` on RetroArch to freeze the screen during the timer alert | Made it worse (game froze ~25 s, no sound); reverted |
+| `kill -STOP` on RetroArch as a first attempt at the timer alert | Froze the game ~25 s with no sound. It works when done **before** starting `gtimer` (now in `run.sh`, [doc 06-1](docs/en/06-1timer.md)) |
 | "00 Timer" inside the **arcade** list (new `games.db` row) | Menu hung on the loading screen twice; card restored |
 | FPS counter, shaders, high-res textures | Not drawn by this build / not worth it / not supported by the core |
 
 ## Still pending
 
 1. **Black screen when opening the bag during a Pokémon battle (Stone Dragon 3):** run Test A (`fastforward_ratio = 0`), confirm Test B (remap disabled) and note the second the screen turns black; run the `smaps` meter.
-2. **Timer alert still flickers** (`gtimer` is a closed ARM binary). Result of `timer_update3` not recorded.
+2. **Timer, remaining details:** audio pop when the game resumes, a button pressed during the pause may reach the game, `killall aplay` also stops other `aplay` processes ([06-1](docs/en/06-1timer.md), section 8).
 3. **Timer over an arcade game** not tested (only over GBA).
 4. **Confirm covers show in the menu** and that **old saves** (Stone Dragon 3, PK GS) load after the save-folder change.
 5. **Enhanced Resolution:** CPU cost (Castlevania ~2 min on/off) and a fair visual comparison; check option-file integrity.
 6. **PK GS RAM:** ~78 MB or ~110 MB? (log attribution problem).
-7. **Multi-disc PBP** (Tales of Destiny II): script untested, extraction flag unconfirmed.
+7. **Multi-disc PBP** (Tales of Destiny II): `-x` was the wrong flag (it means *overwrite*; extracting needs none). Script corrected, still not tried on a real game ([doc 01](docs/en/01-ps1-pbp.md)).
 8. **Pick the final `fastforward_ratio`** (2.5 vs 3.0) and optionally restrict it to Pokémon games only.
 9. **Clean up** test files and meters on the card (list in [doc 04](docs/en/04-pokemon-fastforward.md) and [05](docs/en/05-diagnosis-black-screen-ram.md)).
 10. Covers for hacks/translations and arcade names (done by hand, on purpose).
+11. **Full screen:** [06-1](docs/en/06-1timer.md) says non-GBA games read the card's `gbx66.cfg`, but [04](docs/en/04-pokemon-fastforward.md) measured that the stick ignores it; [03](docs/en/03-graphics-and-consumption.md) also noted a 480x272 viewport versus the 1280x720 output in 06-1. Confirm on the stick which is right (GBA uses `gbx_mod.cfg`, which is really read, so start there).
+12. **History tab:** automatic 15-game limit and single-game delete on the device, a boot hook (today the button only works after a game has been opened), a confirmation step, other devices/firmwares ([history doc](docs/en/game_stick_history.md), section 5).
 
 ## Repository layout
 
 ```
-docs/en/  docs/pt-BR/     chapters 01–06 + 07 scripts guide (same content, two languages)
+docs/en/  docs/pt-BR/     chapters 01–06 (+ 06-1 timer details), 07 scripts guide, history chapter (same content, two languages)
 scripts/ps1/              convert_ps1.sh, multidisc_pbp.sh
 scripts/covers/           check_covers.py, missing_covers_manual.py
-scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh
+scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
 scripts/debug/            avg_per_game.sh, per_session.sh (read timer/hook.log)
-scripts/timer/            hook.sh, run.sh (on-device timer scripts, "update 3")
+scripts/timer/            hook.sh (timer version, "update 3"), run.sh (final: 15 s alert, game paused)
 assets/timer_covers/      10 AI-generated cover images for the "00 Timer" entries
 ```
 
 ## Files that will be added later
 
 - `capas_gamestick.py` (bulk cover downloader; `missing_covers_manual.py` depends on its cache)
+- the improved PS1 converter (`ps1_pbp.py`, multi-disc merge, `.chd` through `chdman`) and the `tests/` suite: written in a review session (23/23 on synthetic discs with the real PSXPackager 1.6.2) but **not part of this repo yet**
 - `gbx_mod.cfg` and `ra_wrap.sh` (GBA launch config and wrapper with the RAM/CPU sampler)
 - the *GBA* version of `hook.sh` (the one in `scripts/timer/` is the timer version; both need to be merged, see [doc 06](docs/en/06-timer.md))
 - `gtimer` is **not** included on purpose (closed ARM binary, no source, unknown license)
@@ -99,8 +104,10 @@ export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager   # onl
 | Toggle PS1 Enhanced Resolution | `scripts/config/set_enhanced_resolution.sh enabled` |
 | Eject the card safely | `lsblk`, then `scripts/config/eject.sh /dev/sdb` |
 | Read RAM/CPU from the log | `scripts/debug/avg_per_game.sh` |
+| See the console History tab from the PC | `python3 scripts/config/hist.py show` |
+| Keep only the 15 most recent in History | `python3 scripts/config/hist.py trim` |
 
-The scripts here are cleaned-up versions of the ones used during the project: paths are variables, there is a `--dry-run`, and deleting originals is now opt-in. The two on-device timer scripts were left **byte-identical** to what runs on the stick, because untested edits to a boot hook could break the menu.
+The scripts here are cleaned-up versions of the ones used during the project: paths are variables, there is a `--dry-run`, and deleting originals is now opt-in. `convert_ps1.sh` no longer corrupts accented `.cue` names. On the stick, `scripts/timer/run.sh` is the final version (15 s alert, game paused) and `scripts/timer/hook.sh` was left **byte-identical** to what runs there, because untested edits to a boot hook could break the menu.
 
 ## Safety rules kept during the project
 

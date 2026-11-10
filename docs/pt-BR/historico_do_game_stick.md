@@ -1,6 +1,6 @@
 # Histórico do game stick: limpar com um botão e gerenciar pelo PC
 
-> English version: [README.en.md](README.en.md)
+[← voltar](../../README.pt-BR.md) · 🇺🇸 [English version](../en/game_stick_history.md)
 
 Documentação de uma engenharia reversa feita num **game stick retrô com Linux** (menu fechado em `/usr/bin/game`, baseado em MiniGUI, jogos rodando via RetroArch). O objetivo era controlar a aba **Histórico** do menu: apagar jogos e limitar o tamanho.
 
@@ -66,11 +66,11 @@ Troque `USER` pelo seu usuário e `MEUCARTAO` pelo nome do seu cartão em `/run/
 ```bash
 cd /run/media/USER/MEUCARTAO
 mkdir -p histtools
-# copie para histtools/ o arquivo scripts/sel_limpa.sh deste repositório
-python3 scripts/make_mold.py       # cria histtools/hist_vazio.sqlite3 (precisa estar com o cartão montado)
+# copie para histtools/ o arquivo scripts/config/sel_limpa.sh deste repositório
+python3 scripts/config/make_mold.py       # cria histtools/hist_vazio.sqlite3 (precisa estar com o cartão montado)
 ```
 
-Se houver mais de um cartão, indique qual: `SD=/run/media/USER/MEUCARTAO python3 scripts/make_mold.py`
+Se houver mais de um cartão, indique qual: `SD=/run/media/USER/MEUCARTAO python3 scripts/config/make_mold.py`
 
 ### 3.2 Descobrir o código do seu botão
 
@@ -89,6 +89,8 @@ Adicione **uma linha perto do começo** do hook, antes de qualquer `exit`:
 ```sh
 [ -f /sdcard/histtools/sel_limpa.sh ] && sh /sdcard/histtools/sel_limpa.sh </dev/null >/dev/null 2>&1 &
 ```
+
+No `scripts/timer/hook.sh` deste repositório (versão do timer), isso significa logo depois da linha `echo "hook ..."` e **antes** do bloco `case "$NAME"`, porque o ramo dos jogos que não são Timer termina em `exit 1`. Num hook unido GBA/timer, a regra é a mesma: antes do primeiro `exit`.
 
 Antes de gravar, confira a sintaxe: `sh -n hook.sh`. Um erro no hook pode impedir os jogos de abrir.
 
@@ -120,11 +122,11 @@ echo "DESFEITO"
 ## 4. Usar pelo PC: `hist.py`
 
 ```bash
-python3 scripts/hist.py show        # lista (mais recente primeiro)
-python3 scripts/hist.py trim        # mantém só os 15 mais recentes (um por jogo)
-python3 scripts/hist.py trim 10     # idem, com outro limite
-python3 scripts/hist.py del 55      # remove um jogo pelo GameID
-python3 scripts/hist.py clear       # apaga tudo
+python3 scripts/config/hist.py show        # lista (mais recente primeiro)
+python3 scripts/config/hist.py trim        # mantém só os 15 mais recentes (um por jogo)
+python3 scripts/config/hist.py trim 10     # idem, com outro limite
+python3 scripts/config/hist.py del 55      # remove um jogo pelo GameID
+python3 scripts/config/hist.py clear       # apaga tudo
 ```
 
 `show` só lê. Os outros **escrevem no cartão**: ejete com segurança antes de usá-lo no aparelho. Os nomes só aparecem para os `GameID` cadastrados em `games.db`. Os outros aparecem como `(name not found)`.
@@ -172,7 +174,7 @@ python3 scripts/hist.py clear       # apaga tudo
 ## 9. Arquivos
 
 ```
-scripts/
+scripts/config/
   hist.py        gerencia o histórico pelo PC
   make_mold.py   cria o molde vazio no cartão
   sel_limpa.sh   roda no aparelho: Start segurado apaga e reinicia o menu

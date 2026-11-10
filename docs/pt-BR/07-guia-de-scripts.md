@@ -40,7 +40,7 @@ Entre na pasta do repositório (`cd ~/Downloads/fogo-no-game-stick`) e, se neces
 
 ## 2. Converter jogos de PS1 para PBP: `scripts/ps1/convert_ps1.sh`
 
-Coloque os jogos (`.cue` + `.bin`, ou `.chd`) em `$SD/game/ps1/` e rode:
+Coloque os jogos (`.cue` + `.bin`) em `$SD/game/ps1/` e rode. (O `.chd` **não** é lido pelo PSXPackager 1.6.2: extraia antes com `chdman extractcd`, do pacote `mame-tools`.)
 
 ```bash
 scripts/ps1/convert_ps1.sh --dry-run    # mostra o que faria, não altera nada
@@ -55,6 +55,7 @@ Leitura da saída:
 | `[NO BIN] X.cue` | não achou `.bin` correspondente; esse jogo não será convertido |
 | `[conv] arquivo` | vai converter (ou convertendo) |
 | `[skip] arquivo` | já existe um `.PBP` com o mesmo nome |
+| `[chd] arquivo` | o PSXPackager não lê `.chd`; a linha mostra o comando `chdman` para extrair antes |
 | `[ERROR] arquivo` | o PSXPackager falhou nesse jogo |
 
 **Teste os PBPs no stick.** Só quando tiver certeza:
@@ -66,16 +67,15 @@ scripts/ps1/convert_ps1.sh --delete             # apaga .cue/.bin/.chd de quem t
 
 A apagada é definitiva. A BIOS (`scph*`, `bios*`) nunca é apagada.
 
-### PBP multi-disco (não testado): `scripts/ps1/multidisc_pbp.sh`
+### PBP multi-disco (ainda não testado num jogo real): `scripts/ps1/multidisc_pbp.sh`
 
 Para jogos com vários discos, já convertidos em PBPs separados (`Nome (Disc 1).PBP`, `Nome (Disc 2).PBP`...):
 
 ```bash
-"$PSX" --help                                    # descubra a flag de extrair e anote
-NAME="Tales of Destiny II (USA)" DISCS=3 EXTRACT_FLAG="-x" scripts/ps1/multidisc_pbp.sh
+NAME="Tales of Destiny II (USA)" DISCS=3 scripts/ps1/multidisc_pbp.sh
 ```
 
-O resultado fica em `$SD/game/ps1/_tmp_multidisc/out/`. O script não apaga nem move nada: confira e teste o PBP novo antes de substituir os originais.
+Não precisa de flag de extração (no PSXPackager `-x` significa *sobrescrever*, não *extrair*; veja o doc 01). O resultado fica em `$SD/game/ps1/_tmp_multidisc/out/`. O script não apaga nem move nada: confira e teste o PBP novo antes de substituir os originais.
 
 ---
 
@@ -151,16 +151,42 @@ scripts/debug/per_session.sh       # RAM máxima por sessão de jogo
 
 ## 7. Scripts do timer no stick: `scripts/timer/hook.sh` e `run.sh`
 
-Não rodam no PC. Eles ficam em `timer/` **no cartão** e o stick os executa sozinho. Para instalar:
+Não rodam no PC. Eles ficam em `timer/` **no cartão** e o stick os executa sozinho.
+
+O **`run.sh`** é a versão final (aviso de 15 s, jogo pausado enquanto ele aparece, qualquer botão fecha). Pode ser copiado sozinho; ele não mexe no `hook.sh`:
+
+```bash
+cp "$SD/timer/run.sh" "$SD/timer/run.sh.bak"      # backup antes
+cp scripts/timer/run.sh "$SD/timer/run.sh"
+sync
+```
+
+`DUR` (segundos) e `PAUSAR` ficam no topo do arquivo. Com `PAUSAR=0` o pisca-pisca volta. Detalhes e comandos de conferência: doc 06-1. Para restaurar: `cp "$SD/timer/run.sh.bak" "$SD/timer/run.sh"`.
+
+O **`hook.sh`** é a versão do timer:
 
 ```bash
 cp "$SD/timer/hook.sh" "$SD/timer/hook.sh.bak_antes_update3"   # backup OBRIGATÓRIO
-cp scripts/timer/run.sh "$SD/timer/run.sh"
 ```
 
 ⚠️ **Não copie o `hook.sh` deste repositório por cima do seu** sem ler o doc 06: ele é a versão do timer e pode tirar o avanço rápido dos jogos de GBA. Una os dois antes. Restaurar: `cp "$SD/timer/hook.sh.bak_antes_update3" "$SD/timer/hook.sh"`.
 
 O `gtimer` (binário) não está no repositório; ele precisa estar em `$SD/timer/gtimer`.
+
+---
+
+## 8. Aba Histórico: `scripts/config/hist.py`, `make_mold.py`, `sel_limpa.sh`
+
+Explicação completa, instalação e avisos: [historico_do_game_stick.md](historico_do_game_stick.md). **Pelo PC** (precisa de `SD`):
+
+```bash
+python3 scripts/config/hist.py show        # lista, mais recente primeiro (só lê)
+python3 scripts/config/hist.py trim        # mantém só os 15 mais recentes (um por jogo)
+python3 scripts/config/hist.py del 55      # remove um jogo pelo GameID
+python3 scripts/config/hist.py clear       # apaga tudo
+```
+
+`show` só lê; os outros **escrevem no cartão** sem confirmação e sem backup: ejete com segurança antes de usá-lo no stick. **No stick**, o `sel_limpa.sh` apaga o histórico quando você segura o **Start por 3 s** na aba Histórico. Preparação única: `python3 scripts/config/make_mold.py` (cria o molde vazio), copie o `sel_limpa.sh` para `$SD/histtools/`, adicione uma linha ao hook e confira o código do botão (`SEL=`). Testado em **um** aparelho só; só funciona depois que um jogo foi aberto desde que o aparelho ligou.
 
 ---
 

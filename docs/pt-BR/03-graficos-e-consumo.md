@@ -7,7 +7,7 @@
 - `retro_lib/retroarch-core-options.cfg`: opções dos cores (apontado por `core_options_path`, com `global_core_options = "true"`).
 - `retro_lib/pcsx_rearmed_libretro.so`: core de PS1.
 - `retroarch/` e `timer/retroarch-core-options.cfg` parecem sobras de outro sistema (Recalbox) e provavelmente não são lidos **[inferido]**.
-- Observação: o capítulo 04 mostra que o `gbx66.cfg` do cartão não é usado. Se o arquivo de **opções de core** do cartão é mesmo o lido não foi confirmado isoladamente; o efeito observado abaixo é visual e discreto.
+- Observação: o capítulo 04 mostra que o `gbx66.cfg` do cartão não é usado (mas veja o conflito não resolvido com o [06-1](06-1timer.md), seção 5). Se o arquivo de **opções de core** do cartão é mesmo o lido não foi confirmado isoladamente; o efeito observado abaixo é visual e discreto.
 
 ## Enhanced Resolution do PS1
 

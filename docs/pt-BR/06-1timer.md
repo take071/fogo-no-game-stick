@@ -1,5 +1,7 @@
 # Timer do console: aviso "TEMPO ACABOU" fixo por 15 s + tela cheia
 
+[← voltar ao 06](06-timer.md) · [← voltar](../../README.pt-BR.md)
+
 Este documento registra o que foi alterado no cartão do console (sistema Linux com RetroArch) para:
 
 1. Mostrar o aviso **"TEMPO ACABOU"** fixo na tela por **15 segundos**, sem piscar.
@@ -179,6 +181,8 @@ Se aparecer `retroarch pid=nenhum`, a pausa não pegou, e o piscar pode voltar.
 
 Os jogos (exceto GBA) usam `gbx66.cfg` na raiz do cartão. Os GBA usam `timer/gbx_mod.cfg`, e há também `timer/cfg_interno.cfg`. Nos três, `aspect_ratio_index` valia `18`. A saída do aparelho é 1280x720, e o índice `1` é 16:9 no RetroArch.
 
+> ⚠️ **Não confirmado, e em conflito com outros capítulos.** (1) O [04](04-pokemon-avanco-rapido.md) mediu que o stick ignora o `gbx66.cfg` e o `start_game.sh` do cartão (usa os internos), então a mudança no `gbx66.cfg` pode **não ter efeito** nos jogos que não são GBA; o GBA usa `timer/gbx_mod.cfg`, que é realmente lido. (2) O [03](03-graficos-e-consumo.md) anotou `custom_viewport` 480x272, o que sugere tela pequena, enquanto este capítulo diz 1280x720. O resultado no stick não foi registrado. Teste um sistema por vez e anote aqui.
+
 ### Aplicar
 
 ```bash
@@ -222,6 +226,8 @@ sync
 ```
 
 ### `run.sh` original (versão anterior às mudanças)
+
+> Observação: este "original" já tem o tratamento de botões com `evtest`, então é uma versão **intermediária**. O `run.sh` mais antigo, do "update 3" (dorme, `gtimer alarm`, `aplay` duas vezes), está no histórico do git deste repositório e descrito no [06](06-timer.md).
 
 ```bash
 cat > "$T/run.sh" <<'EOF'

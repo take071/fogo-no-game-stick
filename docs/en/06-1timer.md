@@ -1,5 +1,7 @@
 # Console timer: fixed "TEMPO ACABOU" alert for 15 s + full-screen games
 
+[← back to 06](06-timer.md) · [← back](../../README.md)
+
 This document records what was changed on the console's SD card (a Linux-based system running RetroArch) to:
 
 1. Show the **"TEMPO ACABOU"** ("time's up") alert fixed on screen for **15 seconds**, without flickering.
@@ -181,6 +183,8 @@ If you see `retroarch pid=nenhum`, pausing did not work, and the flicker may ret
 
 Games (except GBA) use `gbx66.cfg` at the card root. GBA games use `timer/gbx_mod.cfg`, and there is also `timer/cfg_interno.cfg`. In all three, `aspect_ratio_index` was `18`. The device output is 1280x720, and index `1` is 16:9 in RetroArch.
 
+> ⚠️ **Not confirmed, and in conflict with other chapters.** (1) [04](04-pokemon-fastforward.md) measured that the stick ignores the card's `gbx66.cfg` and `start_game.sh` (it uses the internal ones), so the change in `gbx66.cfg` may have **no effect** on non-GBA games; GBA uses `timer/gbx_mod.cfg`, which is really read. (2) [03](03-graphics-and-consumption.md) noted `custom_viewport` 480x272, which suggests a small screen, while this chapter says 1280x720. The result on the stick was not recorded. Test one system at a time and note it here.
+
 ### Apply
 
 ```bash
@@ -224,6 +228,8 @@ sync
 ```
 
 ### Original `run.sh` (the version before the changes)
+
+> Note: this "original" already has the `evtest` button handling, so it is an **intermediate** version. The older "update 3" `run.sh` (sleep, `gtimer alarm`, `aplay` twice) is in this repo's git history and described in [06](06-timer.md).
 
 ```bash
 cat > "$T/run.sh" <<'EOF'

@@ -13,6 +13,7 @@
 
 - Mount point on the PC: `/run/media/user/<LABEL>`. Emulator **RetroArch**; GBA runs on the **mGBA** core (slot 7).
 - **The stick does NOT use the card's `gbx66.cfg` or `start_game.sh`.** It uses the internal ones in `/usr/local/share/minigui/`. All early `gbx66.cfg` tweaks on the card had no effect.
+  > ⚠️ **Conflict, unresolved:** [06-1](06-1timer.md) (full screen) assumes non-GBA games *do* read the card's `gbx66.cfg`. The two statements cannot both be right. Until tested on the stick, treat the full-screen change for non-GBA games as unconfirmed; GBA uses `timer/gbx_mod.cfg`, which is really read.
 - The internal `start_game.sh` calls `/sdcard/timer/hook.sh` (on the card) before launching RetroArch. **`hook.sh` is our entry point.**
 - "00 Timer" and "zz Timer calibrar" are fake games handled separately by `hook.sh` (ch. 06).
 - Controller: **ShanWan Twin USB Joystick**, which sends **keyboard keys** (Start = `KEY_ENTER`, Select = `KEY_RIGHTSHIFT`, A = `KEY_A`, B = `KEY_B`, Y = `KEY_Y`).

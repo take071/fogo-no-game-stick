@@ -14,3 +14,8 @@
 # proprietary/unknown-origin binary of the timer (source not available)
 gtimer
 __pycache__/
+# temporary work folders and partial files of the PS1 scripts
+.psxtmp*
+_tmp_*
+*.m3u
+*.part

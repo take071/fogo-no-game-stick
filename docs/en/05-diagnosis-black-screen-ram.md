@@ -9,7 +9,7 @@ Legend: **[measured]** · **[hypothesis]**.
 1. Stone Dragon 3 (SD3) slow in battles; wanted smoothness in all Pokémon games.
 2. Opening the bag **during a battle** in SD3 turns the screen black instantly; sound continues but stutters. Outside battle the bag works.
 3. PK GS was slow after leaving SD3.
-4. The timer's "TEMPO ACABOU" image flickers (ch. 06).
+4. The timer's "TEMPO ACABOU" image flickers (ch. 06). **Fixed later**, see [06-1](06-1timer.md).
 5. Sprout Tower (PK GS) ran at normal speed.
 
 ## System [measured]

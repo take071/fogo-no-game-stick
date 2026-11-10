@@ -1,5 +1,8 @@
 #!/bin/sh
 END=$1
+DUR=15      # seconds the alert stays on screen
+PAUSAR=1    # 1 = freeze the game before drawing the alert (prevents flicker)
+LOG=/sdcard/timer/gtimer.log
 echo $$ > /tmp/gtimer.pid
 while :; do
   read UP _ < /proc/uptime; UP=${UP%.*}
@@ -9,7 +12,46 @@ while :; do
 done
 rm -f /tmp/gtimer.pid
 [ -x /tmp/gtimer ] || { cp /sdcard/timer/gtimer /tmp/gtimer; chmod +x /tmp/gtimer; }
+
+RP=$(pidof retroarch | awk '{print $1}')
+GP=; AP=
+cleanup() {
+  [ -n "$RP" ] && kill -CONT $RP 2>/dev/null
+  [ -n "$GP" ] && kill $GP 2>/dev/null
+  [ -n "$AP" ] && kill $AP 2>/dev/null
+  killall aplay 2>/dev/null
+  killall evtest 2>/dev/null
+}
+trap cleanup EXIT
+trap 'exit 1' INT TERM HUP
+
+# 1) freeze the game BEFORE starting gtimer
+if [ "$PAUSAR" = 1 ] && [ -n "$RP" ]; then
+  kill -STOP $RP 2>/dev/null
+  sleep 0.3 2>/dev/null || sleep 1
+fi
+echo "run.sh: retroarch pid=${RP:-nenhum} pausar=$PAUSAR dur=$DUR" >> $LOG
+
+# 2) alert duration (gtimer reads this file)
+echo "$DUR" > /sdcard/timer/aviso.txt
+
 /tmp/gtimer alarm >/dev/null 2>&1 &
-aplay -q /sdcard/timer/v/acabou.wav
-sleep 4
-aplay -q /sdcard/timer/v/acabou.wav
+GP=$!
+( aplay -q /sdcard/timer/v/acabou.wav; sleep 4; aplay -q /sdcard/timer/v/acabou.wav ) &
+AP=$!
+read T0 _ < /proc/uptime; T0=${T0%.*}
+sleep 1
+for d in /dev/input/event*; do
+  ( evtest $d 2>/dev/null | while read l; do
+      case "$l" in *"type 1 (EV_KEY)"*"value 1"*) kill $GP 2>/dev/null; break ;; esac
+    done ) &
+done
+
+alive() { ST=$(cut -d' ' -f3 /proc/$GP/stat 2>/dev/null); [ -n "$ST" ] && [ "$ST" != Z ] && [ "$ST" != X ]; }
+while alive; do
+  read T1 _ < /proc/uptime; T1=${T1%.*}
+  [ $((T1 - T0)) -ge $((DUR + 3)) ] && break
+  sleep 0.5 2>/dev/null || sleep 1
+done
+echo "run.sh: fim aviso" >> $LOG
+exit 0

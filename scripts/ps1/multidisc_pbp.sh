@@ -1,16 +1,18 @@
 #!/usr/bin/env bash
 # Merge several single-disc PBPs into ONE multi-disc PBP (via .m3u).
-# STATUS: UNTESTED. The extraction flag of PSXPackager was never confirmed
-# (run "$PSX" --help and set EXTRACT_FLAG). Keep your original PBPs until it works.
+# STATUS: not tried on a real multi-disc game yet. In PSXPackager 1.6.2 (tested with
+# synthetic discs) there is NO extraction flag: passing a .pbp to -i already
+# extracts it to .bin/.cue, and an .m3u in -i builds one multi-disc PBP.
+# CAUTION: "-x" means "overwrite without asking", NOT "extract".
+# Keep your original PBPs until you have tested the result on the stick.
 #
 # Usage:
 #   SD=/run/media/user/<LABEL> PSX=/path/to/psxpackager \
-#   NAME="Tales of Destiny II (USA)" DISCS=3 EXTRACT_FLAG="-x" ./multidisc_pbp.sh
+#   NAME="Tales of Destiny II (USA)" DISCS=3 ./multidisc_pbp.sh
 # Expects: "$SD/game/ps1/<NAME> (Disc 1).PBP" ... "(Disc N).PBP"
 set -u
 : "${SD:?set SD}"; : "${PSX:?set PSX}"; : "${NAME:?set NAME}"
 DISCS="${DISCS:-3}"
-EXTRACT_FLAG="${EXTRACT_FLAG:--x}"   # TODO: confirm with --help
 D="$SD/game/ps1"; TMP="$D/_tmp_multidisc"
 cd "$D" || exit 1
 mkdir -p "$TMP"
@@ -18,7 +20,7 @@ mkdir -p "$TMP"
 # 1) extract each disc to bin/cue
 for n in $(seq 1 "$DISCS"); do
   mkdir -p "$TMP/d$n"
-  "$PSX" -i "$D/$NAME (Disc $n).PBP" -o "$TMP/d$n" $EXTRACT_FLAG || { echo "[ERROR] disc $n"; exit 1; }
+  "$PSX" -i "$D/$NAME (Disc $n).PBP" -o "$TMP/d$n" || { echo "[ERROR] disc $n"; exit 1; }
 done
 find "$TMP" -type f
 

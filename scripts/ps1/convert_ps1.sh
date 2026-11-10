@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Convert PS1 CUE/BIN (or CHD) games to .PBP for the Game Stick.
+# Convert PS1 CUE/BIN games to .PBP for the Game Stick (.chd must be extracted first).
 #
 # Usage:
 #   SD=/run/media/user/<LABEL> PSX=/path/to/psxpackager ./convert_ps1.sh [--dry-run] [--delete]
@@ -28,26 +28,38 @@ D="$SD/game/ps1"
 cd "$D" || exit 1
 
 # 1) fix .bin references inside .cue files (name mismatch was the cause of
-#    "Could not find file '...bin'" in PSXPackager)
+#    "Could not find file '...bin'" in PSXPackager). Conservative matching and
+#    UTF-8-safe: a correct .cue with accents is never rewritten.
 python3 - "$D" "$DRY" <<'EOF'
-import os, re, sys, difflib
+import os, re, sys
 D, DRY = sys.argv[1], sys.argv[2] == '1'
+# Read/write the .cue as UTF-8 with surrogateescape: bytes are preserved exactly,
+# and names match the real file names on disk (accents like "Pokémon" stay intact).
+ENC = dict(encoding='utf-8', errors='surrogateescape', newline='')
 pat = re.compile(r'^(\s*FILE\s+)"([^"]+)"(.*)$', re.M)
 for root, _, files in os.walk(D):
     bins = [f for f in files if f.lower().endswith('.bin')]
     for cue in [f for f in files if f.lower().endswith('.cue')]:
         p = os.path.join(root, cue)
-        txt = open(p, encoding='latin-1', newline='').read()
+        txt = open(p, **ENC).read()
+        n_files = len(pat.findall(txt))
         changed = False
         def fix(m):
             global changed
             name = m.group(2)
             if os.path.exists(os.path.join(root, name)):
                 return m.group(0)
-            base = os.path.splitext(cue)[0].lower()
-            cand = [b for b in bins if os.path.splitext(b)[0].lower() == base] \
-                or difflib.get_close_matches(name, bins, n=1, cutoff=0.6)
-            if cand:
+            # conservative: same name ignoring case ...
+            cand = [b for b in bins if b.lower() == name.lower()]
+            # ... or, only for a .cue with a single FILE: the .bin with the .cue's base
+            # name, or the only .bin in the folder (no fuzzy matching: it could bind
+            # several FILE lines to the same .bin)
+            if not cand and n_files == 1:
+                base = os.path.splitext(cue)[0].lower()
+                cand = [b for b in bins if os.path.splitext(b)[0].lower() == base]
+                if not cand and len(bins) == 1:
+                    cand = bins
+            if len(cand) == 1:
                 print(f'[fix] {cue}: {name} -> {cand[0]}')
                 changed = True
                 return f'{m.group(1)}"{cand[0]}"{m.group(3)}'
@@ -55,13 +67,19 @@ for root, _, files in os.walk(D):
             return m.group(0)
         new = pat.sub(fix, txt)
         if changed and not DRY:
-            open(p, 'w', encoding='latin-1', newline='').write(new)
+            open(p, 'w', **ENC).write(new)
 EOF
 
 # 2) convert everything that has no PBP yet
 find . -type f \( -iname '*.cue' -o -iname '*.chd' \) -print0 | while IFS= read -r -d '' f; do
   b="${f%.*}"
   if [ -f "$b.PBP" ] || [ -f "$b.pbp" ]; then echo "[skip] $f"; continue; fi
+  case "$f" in
+    *.[cC][hH][dD])
+      # PSXPackager 1.6.2 does NOT read .chd (measured): extract to .cue/.bin first
+      echo "[chd] $f: not supported by PSXPackager; run: chdman extractcd -i \"$f\" -o \"$b.cue\" -ob \"$b.bin\""
+      continue ;;
+  esac
   echo "[conv] $f"
   [ "$DRY" = 1 ] && continue
   "$PSX" -i "$f" -o "$(dirname "$f")" || echo "[ERROR] $f"
@@ -92,7 +110,7 @@ for root, _, files in os.walk(D):
             print('[keep, no PBP]', f); continue
         p = os.path.join(root, f)
         if f.lower().endswith('.cue'):
-            txt = open(p, encoding='latin-1').read()
+            txt = open(p, encoding='utf-8', errors='surrogateescape').read()
             for n in re.findall(r'^\s*FILE\s+"([^"]+)"', txt, re.M | re.I):
                 b = os.path.join(root, n)
                 if os.path.isfile(b) and not protected(n): rm(b)

@@ -9,7 +9,7 @@ Legenda: **[medido]** · **[hipótese]**.
 1. Stone Dragon 3 (SD3) lento nas batalhas; queria fluidez em todos os jogos de Pokémon.
 2. Ao abrir a bag **durante uma batalha** no SD3, a imagem fica preta na hora; o som continua, mas engasga. Fora da batalha a bag funciona.
 3. PK GS ficava lento depois de sair do SD3.
-4. A imagem "TEMPO ACABOU" do timer pisca (cap. 06).
+4. A imagem "TEMPO ACABOU" do timer pisca (cap. 06). **Corrigido depois**, veja o [06-1](06-1timer.md).
 5. Sprout Tower (PK GS) estava em velocidade normal.
 
 ## Sistema [medido]
