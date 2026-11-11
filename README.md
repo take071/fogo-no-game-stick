@@ -2,7 +2,7 @@
 
 🇬🇧 [Read in English](README.en.md)
 
-Aqui eu guardo tudo o que descobri e mexi no meu **Game Stick 4K Lite** (placa vermelha, firmware "V5 Base TG", menu MiniGUI + RetroArch 1.7.4). Fiz tudo a partir de um PC com Fedora, sem instalar o RetroArch e sem rodar código ARM no x86_64.
+Aqui eu guardo tudo o que descobri e mexi no meu **Game Stick 4K Lite** (placa vermelha, firmware "V5 Base TG", menu MiniGUI + RetroArch 1.7.4). Fiz tudo a partir de um PC com linux Fedora, sem instalar o RetroArch e sem rodar código ARM no x86_64.
 
 > **Projeto em andamento.** Este repositório é meu caderno: o que funcionou, o que tentei e larguei, e o que ainda falta. Eu marco cada afirmação: **[medido]** vi em log ou comando · **[inferido]** deduzi, não confirmei · **[hipótese]** desconfiança sem prova · **[pendente]** ainda não testei.
 
