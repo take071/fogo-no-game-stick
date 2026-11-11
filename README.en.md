@@ -2,7 +2,7 @@
 
 🇧🇷 [Leia em português](README.md)
 
-This is where I keep everything I found out and changed on my **Game Stick 4K Lite** (red board, firmware "V5 Base TG", MiniGUI menu + RetroArch 1.7.4). I did it all from a Fedora PC, without installing RetroArch and without running ARM code on x86_64.
+This is where I keep everything I found out and changed on my **Game Stick 4K Lite** (red board, firmware "V5 Base TG", MiniGUI menu + RetroArch 1.7.4). I did it all from a linux Fedora PC, without installing RetroArch and without running ARM code on x86_64.
 
 > **Work in progress.** This repo is my notebook: what worked, what I tried and dropped, and what is still missing. I tag every claim: **[measured]** seen in a log/command · **[inferred]** deduced, not confirmed · **[hypothesis]** suspicion without proof · **[pending]** not tested yet.
 
