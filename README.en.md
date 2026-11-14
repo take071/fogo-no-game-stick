@@ -61,7 +61,7 @@ Photos I took along the way are in [`docs/fotos/`](docs/fotos), with captions in
 4. **Covers in the menu** and **old saves** (Stone Dragon 3, PK GS) after the folder change.
 5. **Enhanced Resolution:** CPU cost (Castlevania ~2 min on/off) and a fair visual comparison; check the closing quote on `no_main`.
 6. **PK GS RAM:** ~78 MB or ~110 MB? (log attribution problem). Run the same `smaps` test on it.
-7. **Multi-disc PBP** (Tales of Destiny II): see [doc 10](docs/en/10-psxpackager-fixes.md); the fixed script still has to be added to the repo.
+7. **Multi-disc PBP** (Tales of Destiny II): see [doc 10](docs/en/10-psxpackager-fixes.md); the new `convert_ps1.sh` already merges discs by itself, but a PBP it generated still has to be opened on the stick (the `.m3u` mechanism already worked with the old `multidisc_pbp.sh`).
 8. **Automatic 15-game history limit** on the device itself.
 9. **Pick the final `fastforward_ratio`** (2.5 or 3.0) and optionally limit it to Pokémon only.
 10. **Clean up** test files and meters on the card.
@@ -71,20 +71,20 @@ Photos I took along the way are in [`docs/fotos/`](docs/fotos), with captions in
 ```
 docs/en/  docs/pt-BR/     chapters 01–10 (same content in both languages)
 docs/fotos/               photos from the tests, in the order I took them
-scripts/ps1/              convert_ps1.sh, multidisc_pbp.sh
-scripts/covers/           check_covers.py, missing_covers_manual.py
-scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh
-scripts/debug/            avg_per_game.sh, per_session.sh, diag_swap.sh
+scripts/ps1/              convert_ps1.sh, ps1_pbp.py (Python twin)
+scripts/covers/           capas_gamestick.py, check_covers.py, missing_covers_manual.py
+scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
+scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh
 scripts/timer/            hook.sh, run.sh (new), run_original.sh, hook_timer_restaurado.sh
+scripts/pt-BR/            the same tools with comments and messages in Portuguese (see LEIA-ME.md)
+tests/                    tests with synthetic discs, no ROMs (bash tests/run_tests.sh)
 assets/timer_covers/      10 AI-generated covers for the "00 Timer" entries
 ```
 
 ## Files I still have to add
 
-- `capas_gamestick.py` (bulk cover downloader; `missing_covers_manual.py` depends on its cache)
 - `gbx_mod.cfg` and `ra_wrap.sh` (GBA config and the wrapper with the RAM/CPU sampler)
 - the *GBA* version of `hook.sh` (the one in `scripts/timer/hook.sh` is the timer version; they need to be merged)
-- the history scripts: `hist.py`, `make_mold.py`, `sel_limpa.sh` (see [doc 08](docs/en/08-history-button.md))
 - `gtimer` is **not** included on purpose (closed ARM binary, no source, unknown license)
 
 ## Scripts: quick start

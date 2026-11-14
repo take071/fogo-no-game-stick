@@ -1,6 +1,6 @@
 # 02 · Saves em pasta própria e capas
 
-[← anterior](01-ps1-pbp.md) · [← voltar](../../README.pt-BR.md) · [próximo: gráficos e consumo →](03-graficos-e-consumo.md)
+[← anterior](01-ps1-pbp.md) · [← voltar](../../README.md) · [próximo: gráficos e consumo →](03-graphics-and-consumption.md)
 
 ## Parte A: saves e states em `saves/` e `states/`
 
@@ -69,9 +69,10 @@ A tabela `tbl_game` do `games.db` não tem coluna de imagem e a pasta `picture/`
 
 - Capas do repositório `libretro-thumbnails` (`Named_Boxarts`), preferindo USA, em 400x400 (tamanho mais comum em GBA e PS1), salvas como `<nome do jogo>.png`.
 - PS1: A Bug's Life e Alundra receberam capa; duas imagens soltas sem jogo foram apagadas; a da BIOS foi mantida.
-- Todas as pastas: o `capas_gamestick.py` (**a ser adicionado**) conferiu cada jogo e baixou **48 capas** (a maioria GBA). Já existiam 47; sobraram 3.
+- Todas as pastas: o `scripts/covers/capas_gamestick.py` conferiu cada jogo e baixou **48 capas** (a maioria GBA). Já existiam 47; sobraram 3.
 - As 3 restantes (Mega Man & Bass, Mother 1 & 2, `3wonders`) foram baixadas à mão: `scripts/covers/missing_covers_manual.py`.
 - Conferência final: `scripts/covers/check_covers.py`.
+- Revisão posterior **[medido, download real]**: o script também **segue links simbólicos do git** (no repositório do PS1, nomes como `(Disc 1)` são links; antes ele tentava abrir o texto do link como imagem) e ignora `&`, `_` e a palavra "and" ao comparar títulos.
 
 ### Limitações
 

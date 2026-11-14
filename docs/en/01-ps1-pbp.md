@@ -30,13 +30,13 @@ PSXPackager failed on every game with `Could not find file '...bin'`. The `.cue`
 - **`difflib` matching removed:** it could bind several `FILE` lines to the same `.bin`.
 - **`.chd` is not supported** by PSXPackager 1.6.2 **[measured]**. The script now prints a `[chd]` line with the `chdman extractcd` command instead of failing. Extract first (`mame-tools` package).
 
-## Multi-disc (Tales of Destiny II): **tested on the device, it works** [tested by the author]
+## Multi-disc (Tales of Destiny II): the mechanism was **tested on the device, it works** [tested by the author]
 
-`scripts/ps1/multidisc_pbp.sh` extracts each disc back to bin/cue, builds an `.m3u` with the `.cue` files in order and packs everything into one multi-disc PBP.
+The old `scripts/ps1/multidisc_pbp.sh` (now **replaced**) extracted each disc back to bin/cue, built an `.m3u` with the `.cue` files in order and packed everything into one multi-disc PBP; that is the flow tested on the device. Today `scripts/ps1/convert_ps1.sh` (and its Python twin `ps1_pbp.py`) does the same by itself for **all** the games in the folder: it groups `(Disc N)`, extracts whatever is already a PBP, builds the `.m3u`, packs it and, with `--delete`, verifies and deletes the originals. **The new automatic flow has not been opened on the device yet** (it was only tested with synthetic discs); the mechanism (`.m3u` → PBP) is the same.
 
 The extraction flag was a guess in the first version. A later review session measured the real PSXPackager 1.6.2 with synthetic discs **[measured]**:
 
-- **`-x` is NOT "extract":** it means *overwrite without asking*. The earlier script and docs used it as the extraction flag, which was wrong.
+- **`-x` is NOT "extract":** it means *overwrite without asking*. The earlier script and docs used it as the extraction flag, which was wrong in meaning (in practice extraction with `-x` ran fine in the tests, because it only overwrites).
 - Extracting needs **no flag**: a `.pbp` in `-i` already produces `.bin/.cue`; `-d 1,2` picks the discs.
 - A `.m3u` in `-i` (absolute or relative paths) produces **one** multi-disc PBP, named like the `.m3u`.
 - `-d N` on a single-disc PBP ignores `N` and extracts the only disc (rc=0). To prove a PBP really has several discs, check for the ` - Disc N` suffix in the extracted name; "a `.cue` was generated" is not enough.

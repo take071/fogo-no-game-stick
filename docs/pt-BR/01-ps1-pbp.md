@@ -1,6 +1,6 @@
 # 01 · PS1: conversão para PBP
 
-[← voltar](../../README.pt-BR.md) · [próximo: saves e capas →](02-saves-e-capas.md)
+[← voltar](../../README.md) · [próximo: saves e capas →](02-saves-and-covers.md)
 
 ## Problema
 
@@ -30,13 +30,13 @@ O PSXPackager falhava em todos os jogos com `Could not find file '...bin'`. Os `
 - **Casamento por `difflib` removido:** ele podia ligar vários `FILE` ao mesmo `.bin`.
 - **`.chd` não é suportado** pelo PSXPackager 1.6.2 **[medido]**. Agora o script imprime uma linha `[chd]` com o comando `chdman extractcd` em vez de falhar. Extraia antes (pacote `mame-tools`).
 
-## Multi-disco (Tales of Destiny II): **testado no aparelho, funciona** [testado pelo autor]
+## Multi-disco (Tales of Destiny II): mecanismo **testado no aparelho, funciona** [testado pelo autor]
 
-`scripts/ps1/multidisc_pbp.sh` extrai cada disco de volta para bin/cue, monta um `.m3u` com os `.cue` na ordem e empacota em um PBP multi-disco.
+O antigo `scripts/ps1/multidisc_pbp.sh` (agora **substituído**) extraía cada disco de volta para bin/cue, montava um `.m3u` com os `.cue` na ordem e empacotava em um PBP multi-disco; foi esse o fluxo testado no aparelho. Hoje o `scripts/ps1/convert_ps1.sh` (e o gêmeo `ps1_pbp.py`) faz o mesmo sozinho para **todos** os jogos da pasta: agrupa `(Disc N)`, extrai o que já estiver em PBP, monta o `.m3u`, empacota e, com `--delete`, verifica e apaga os originais. **O fluxo automático novo ainda não foi aberto no aparelho** (só foi testado com discos sintéticos); o mecanismo (`.m3u` → PBP) é o mesmo.
 
 A flag de extração era um palpite na primeira versão. Uma sessão de revisão posterior mediu o PSXPackager 1.6.2 real com discos sintéticos **[medido]**:
 
-- **`-x` NÃO é "extrair":** significa *sobrescrever sem perguntar*. O script e os docs anteriores usavam `-x` como flag de extração, o que estava errado.
+- **`-x` NÃO é "extrair":** significa *sobrescrever sem perguntar*. O script e os docs anteriores usavam `-x` como flag de extração, o que estava errado quanto ao significado (na prática a extração com `-x` rodou normalmente nos testes, porque ele só sobrescreve).
 - Extrair **não precisa de flag**: passar um `.pbp` em `-i` já gera `.bin/.cue`; `-d 1,2` escolhe os discos.
 - Um `.m3u` em `-i` (caminhos absolutos ou relativos) gera **um** PBP multi-disco, com o nome do `.m3u`.
 - `-d N` num PBP de 1 disco ignora o `N` e extrai o único disco (rc=0). Para provar que um PBP tem mesmo vários discos, confira o sufixo ` - Disc N` no nome extraído; "gerou um `.cue`" não basta.

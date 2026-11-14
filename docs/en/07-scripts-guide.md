@@ -40,11 +40,13 @@ Enter the repo folder (`cd ~/Downloads/fogo-no-game-stick`) and, if needed, make
 
 ## 2. Convert PS1 games to PBP: `scripts/ps1/convert_ps1.sh`
 
-Put the games (`.cue` + `.bin`) in `$SD/game/ps1/` and run. (`.chd` is **not** read by PSXPackager 1.6.2: extract it first with `chdman extractcd`, from the `mame-tools` package.)
+Put the games in `$SD/game/ps1/` (or pass the folder as an argument) and run. It fixes the `.cue` files, converts each game and **merges multi-disc games into a single PBP**. `.chd` is **not** read by PSXPackager 1.6.2: the script uses `chdman` (package `mame-tools`) if installed; otherwise it prints `[chd]` with the command to extract by hand. A Python twin, `scripts/ps1/ps1_pbp.py`, has the same options.
 
 ```bash
 scripts/ps1/convert_ps1.sh --dry-run    # shows what it would do, changes nothing
-scripts/ps1/convert_ps1.sh              # fixes the .cue files and converts; KEEPS the originals
+scripts/ps1/convert_ps1.sh              # fixes .cue files, converts and merges discs; KEEPS the originals
+scripts/ps1/convert_ps1.sh /other/folder # or point to the folder with the games (searches subfolders)
+python3 scripts/ps1/ps1_pbp.py          # the Python twin: same options
 ```
 
 Reading the output:
@@ -55,8 +57,14 @@ Reading the output:
 | `[NO BIN] X.cue` | no matching `.bin` found; that game will not be converted |
 | `[conv] file` | will convert (or is converting) |
 | `[skip] file` | a `.PBP` with the same name already exists |
-| `[chd] file` | PSXPackager cannot read `.chd`; the line prints the `chdman` command to extract it first |
+| `[chd] file` | `.chd` without `chdman` installed: the line prints the `chdman` command to extract by hand |
 | `[ERROR] file` | PSXPackager failed on that game |
+| `[merge] Game (N discs)` | merging the discs into a single PBP |
+| `[WARN] Game: discs found...` | incomplete set (e.g. discs 1 and 3): not merged; `--force-partial` only if intended |
+| `[bios] file` | BIOS ignored (never converted or deleted) |
+| `[cover] A -> B` | Disc 1's cover was copied to the merged game's name |
+| `[keep] ...` | invalid or incomplete PBP: the originals were kept |
+| `[deleted]` / `[would delete]` | file deleted / that would be deleted (`--delete`) |
 
 **Test the PBPs on the stick.** Only when you are sure:
 
@@ -65,18 +73,22 @@ scripts/ps1/convert_ps1.sh --dry-run --delete   # lists what would be deleted
 scripts/ps1/convert_ps1.sh --delete             # deletes .cue/.bin/.chd of games with a valid PBP
 ```
 
-Deleting is permanent. BIOS files (`scph*`, `bios*`) are never deleted.
+Deleting is permanent. BIOS files (`scph*`, `bios*`) are never deleted. For multi-disc games, before deleting the script **extracts the last disc** of the merged PBP to prove all N discs are there.
 
-### Multi-disc PBP (tested by the author, it works): `scripts/ps1/multidisc_pbp.sh`
+### Multi-disc games (the mechanism was tested on the device; the new automatic flow was not)
 
-For games with several discs, already converted to separate PBPs (`Name (Disc 1).PBP`, `Name (Disc 2).PBP`...):
+`convert_ps1.sh` itself merges the discs: it groups names with `(Disc N)`, `[Disk N]`, `(CD N)`, `(Disco N)` or `(Disc N of M)` and produces **one** `Name.PBP` in the same folder. It accepts discs as `.cue`, `.chd` (with `chdman`) or already converted to separate PBPs, even mixed.
 
 ```bash
-NAME="Tales of Destiny II (USA)" DISCS=3 scripts/ps1/multidisc_pbp.sh
+scripts/ps1/convert_ps1.sh --dry-run    # shows the groups and what would be merged
+scripts/ps1/convert_ps1.sh              # merges; keeps the originals
 ```
 
-No extraction flag is needed (in PSXPackager `-x` means *overwrite*, not *extract*; see doc 01). The result lands in `$SD/game/ps1/_tmp_multidisc/out/`. The script deletes and moves nothing: check and test the new PBP before replacing the originals.
-
+- `Part 1` / `Part 2` are **not** treated as discs.
+- If a disc is missing (e.g. only 1 and 3), it warns `[WARN]` and does not merge.
+- Disc 1's cover is copied to the merged game's name.
+- Extracting discs takes space: the work area is `~/.cache/gamestick_psx` (`PSX_TMP`), off the card, and the script checks free space first.
+- The old `multidisc_pbp.sh` (one game at a time, via `NAME=` and `DISCS=`) was **replaced** by this; see doc 10.
 ---
 
 ## 3. Covers
@@ -89,13 +101,22 @@ python3 scripts/covers/check_covers.py
 
 It prints `[NO COVER] folder/game` and a total at the end. A cover is a `.png`/`.jpg` with the **same name as the game**, in the same folder (hypothesis, see doc 02).
 
+**Download the covers of all games:** `scripts/covers/capas_gamestick.py` (takes the card root or the `game` folder; with no argument it uses `$SD`):
+
+```bash
+python3 scripts/covers/capas_gamestick.py --dry-run   # only shows what it would download
+python3 scripts/covers/capas_gamestick.py             # downloads; never overwrites an existing cover
+```
+
+Needs Pillow (`pip install -r requirements.txt`). It caches the API data in `~/.cache/capas_gamestick` and writes the games without a cover to `~/capas_relatorio.txt`.
+
 **Fetch a few covers by hand:** `scripts/covers/missing_covers_manual.py`. Edit the `TASKS` list at the top of the file (repos, destination without extension, and words from the name) and run:
 
 ```bash
 python3 scripts/covers/missing_covers_manual.py
 ```
 
-This script depends on the cache produced by `capas_gamestick.py` (`~/.cache/capas_gamestick`), which will be added to the repo later. Without the cache it prints `[no candidate]`. It never overwrites an existing cover.
+This script depends on the cache produced by `capas_gamestick.py` (`~/.cache/capas_gamestick`): run that once first. Without the cache it prints `[no candidate]`. It never overwrites an existing cover.
 
 **"00 Timer" covers:** copy the PNGs from `assets/timer_covers/` into each console's folder, named like the fake "game" (e.g. `gba.png` becomes `00 Timer.png` in `$SD/game/gba/`).
 
@@ -117,6 +138,7 @@ It applies to GBA games launched through `hook.sh`, but the effect only shows in
 
 ```bash
 scripts/config/set_enhanced_resolution.sh enabled      # or: disabled
+scripts/config/set_enhanced_resolution.sh check        # only checks whether a neon line lost its closing quote
 ```
 
 After any tweak, eject the card (below) and test on the stick.
@@ -186,7 +208,7 @@ The `gtimer` binary is not in the repo; it must be at `$SD/timer/gtimer`.
 
 ## 8. History tab: `scripts/config/hist.py`, `make_mold.py`, `sel_limpa.sh`
 
-Full explanation, install and warnings: [game_stick_history.md](game_stick_history.md). **From the PC** (needs `SD`):
+Full explanation, install and warnings: [08-history-button.md](08-history-button.md). **From the PC** (needs `SD`):
 
 ```bash
 python3 scripts/config/hist.py show        # list, newest first (read-only)

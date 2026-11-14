@@ -6,6 +6,7 @@ HOLD=300          # hundredths of a second (300 = 3 s)
 LOG=/sdcard/histtools/sel.log
 DB=/sdcard/game/database.sqlite3
 MOLDE=/sdcard/histtools/hist_vazio.sqlite3
+BAK=/sdcard/histtools/database.bak_pre_limpa   # copy of the menu DB, made once before the first wipe
 [ -f /tmp/sel_limpa.pid ] && kill -0 "$(cat /tmp/sel_limpa.pid)" 2>/dev/null && exit 0
 echo $$ > /tmp/sel_limpa.pid
 echo "sel_limpa started" >> $LOG
@@ -21,16 +22,17 @@ for d in /dev/input/event*; do
             read T0 < /tmp/sel_t0; rm -f /tmp/sel_t0
             [ $((N - T0)) -ge $HOLD ] || continue
             [ -n "$(pidof retroarch)" ] && continue       # never inside a game
-            [ -f "$MOLDE" ] || { echo "mold missing" >> $LOG; continue; }
+            [ -s "$MOLDE" ] || { echo "mold missing" >> $LOG; continue; }
             read U2 _ < /proc/uptime; N2=${U2%.*}
             if [ -f /tmp/sel_rst ]; then read L < /tmp/sel_rst; [ $((N2 - L)) -lt 8 ] && continue; fi
             echo "$N2" > /tmp/sel_rst
+            [ -f "$BAK" ] || { cp "$DB" "$BAK" 2>/dev/null && echo "db backup saved" >> $LOG || echo "db backup failed" >> $LOG; }
             cat "$MOLDE" > "$DB" && sync                   # overwrite IN PLACE (the menu keeps the file open)
             echo "history wiped" >> $LOG
             killall -9 game 2>/dev/null                     # kill the menu so it cannot rewrite the old data
             sleep 1
             export HOME=/ XDG_CONFIG_HOME=/sdcard/ MG_CFG_PATH=/usr/local/share/minigui/hdmicfg storagemedia=sd
-            cd /mnt
+            cd /mnt || true
             setsid /usr/bin/game </dev/null >/dev/console 2>&1 &
             sleep 3
             if [ -n "$(pidof game)" ]; then echo "menu restarted" >> $LOG; else echo "menu did NOT start" >> $LOG; fi

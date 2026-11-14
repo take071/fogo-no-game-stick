@@ -59,6 +59,7 @@ Replace `USER` and `MYCARD`. Full details will come with the scripts.
 
    Before saving: `sh -n hook.sh`. A broken hook can stop games from launching (and remember the rule: keep the original `hook.sh`).
 4. **Test:** open any game (that's what starts the script), go back, open the History tab and hold Start ~3 s. Expected in `histtools/sel.log`: `sel_limpa started`, `history wiped`, `menu restarted`.
+   On the first wipe the script first saves a copy of the menu database to `histtools/database.bak_pre_limpa` (log: `db backup saved`) and refuses to wipe if the `hist_vazio.sqlite3` mold is empty. **These two safeguards were added in a later review and were not tested on the device** (only with `evtest` and simulated commands).
 5. **Uninstall:** `sed -i '/sel_limpa/d' <your hook.sh>`, `rm -rf histtools`, `sync`.
 
 ## 4. From the PC: `hist.py`

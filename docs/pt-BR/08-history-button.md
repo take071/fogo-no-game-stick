@@ -59,6 +59,7 @@ Troque `USER` e `MEUCARTAO`. Detalhes completos virão junto dos scripts.
 
    Antes de gravar: `sh -n hook.sh`. Um erro no hook pode impedir os jogos de abrir (e lembre da regra: guarde o original do `hook.sh`).
 4. **Teste:** abra qualquer jogo (é o que inicia o script), volte, vá à aba Histórico e segure Start ~3 s. O esperado em `histtools/sel.log`: `sel_limpa started`, `history wiped`, `menu restarted`.
+   Na primeira limpeza o script guarda antes uma cópia do banco do menu em `histtools/database.bak_pre_limpa` (no log: `db backup saved`) e se recusa a limpar se o molde `hist_vazio.sqlite3` estiver vazio. **Essas duas proteções foram acrescentadas numa revisão posterior e não foram testadas no aparelho** (só com `evtest` e comandos simulados).
 5. **Desinstalar:** `sed -i '/sel_limpa/d' <seu hook.sh>`, `rm -rf histtools`, `sync`.
 
 ## 4. Pelo PC: `hist.py`

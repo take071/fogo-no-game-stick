@@ -1,0 +1,3 @@
+-r requirements.txt
+# Only for tests/make_fake_disc.py (generates synthetic PS1 discs, no ROMs)
+pycdlib>=1.13

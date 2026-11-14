@@ -69,9 +69,10 @@ Old progress (Stone Dragon 3, PK GS) **loads** after the folder change **[tested
 
 - Covers from the `libretro-thumbnails` repo (`Named_Boxarts`), preferring USA, at 400x400 (the most common size in GBA and PS1), saved as `<game name>.png`.
 - PS1: A Bug's Life and Alundra got covers; two loose images with no game were deleted; the BIOS image was kept.
-- All folders: `capas_gamestick.py` (**to be added**) checked each game and downloaded **48 covers** (mostly GBA). 47 already existed; 3 were left.
+- All folders: `scripts/covers/capas_gamestick.py` checked each game and downloaded **48 covers** (mostly GBA). 47 already existed; 3 were left.
 - The remaining 3 (Mega Man & Bass, Mother 1 & 2, `3wonders`) were fetched by hand: `scripts/covers/missing_covers_manual.py`.
 - Final check: `scripts/covers/check_covers.py`.
+- Later review **[measured, real download]**: the script also **follows git symlinks** (in the PS1 repo, names like `(Disc 1)` are links; before, it tried to open the link text as an image) and ignores `&`, `_` and the word "and" when matching titles.
 
 ### Limitations
 

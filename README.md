@@ -61,7 +61,7 @@ As fotos que fui tirando ao longo dos testes estão em [`docs/fotos/`](docs/foto
 4. **Capas no menu** e **saves antigos** (Stone Dragon 3, PK GS) depois da mudança de pasta.
 5. **Enhanced Resolution:** custo de CPU (Castlevania ~2 min ligado/desligado) e comparação visual justa; conferir a aspa final do `no_main`.
 6. **RAM do PK GS:** ~78 MB ou ~110 MB? (problema de atribuição no log). Rodar o mesmo `smaps` do SD3 nele.
-7. **PBP multidisco** (Tales of Destiny II): ver [doc 10](docs/pt-BR/10-psxpackager-fixes.md); o script corrigido ainda precisa entrar no repositório.
+7. **PBP multidisco** (Tales of Destiny II): ver [doc 10](docs/pt-BR/10-psxpackager-fixes.md); o `convert_ps1.sh` novo já junta os discos sozinho, mas ainda falta abrir no stick um PBP gerado por ele (o mecanismo `.m3u` já funcionou com o `multidisc_pbp.sh` antigo).
 8. **Limite automático de 15 jogos no histórico**, direto no aparelho.
 9. **Escolher o `fastforward_ratio` final** (2.5 ou 3.0) e, se quiser, restringir só aos Pokémon.
 10. **Limpar** arquivos de teste e medidores do cartão.
@@ -71,20 +71,20 @@ As fotos que fui tirando ao longo dos testes estão em [`docs/fotos/`](docs/foto
 ```
 docs/pt-BR/  docs/en/     capítulos 01–10 (mesmo conteúdo nos dois idiomas)
 docs/fotos/               fotos dos testes, na ordem em que as tirei
-scripts/ps1/              convert_ps1.sh, multidisc_pbp.sh
-scripts/covers/           check_covers.py, missing_covers_manual.py
-scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh
-scripts/debug/            avg_per_game.sh, per_session.sh, diag_swap.sh
+scripts/ps1/              convert_ps1.sh, ps1_pbp.py (gêmeo em Python)
+scripts/covers/           capas_gamestick.py, check_covers.py, missing_covers_manual.py
+scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
+scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh
 scripts/timer/            hook.sh, run.sh (novo), run_original.sh, hook_timer_restaurado.sh
+scripts/pt-BR/            as mesmas ferramentas com comentários e mensagens em português (veja o LEIA-ME.md)
+tests/                    testes com discos sintéticos, sem ROMs (bash tests/run_tests.sh)
 assets/timer_covers/      10 capas feitas com IA para as entradas do "00 Timer"
 ```
 
 ## Arquivos que ainda vou adicionar
 
-- `capas_gamestick.py` (baixa capas em massa; o `missing_covers_manual.py` depende do cache dele)
 - `gbx_mod.cfg` e `ra_wrap.sh` (config de GBA e o wrapper com o medidor de RAM/CPU)
 - a versão **GBA** do `hook.sh` (a de `scripts/timer/hook.sh` é a do timer; falta juntar as duas)
-- os scripts do histórico: `hist.py`, `make_mold.py`, `sel_limpa.sh` (ver [doc 08](docs/pt-BR/08-history-button.md))
 - o `gtimer` **não entra** de propósito (binário ARM fechado, sem fonte e sem licença conhecida)
 
 ## Scripts: começo rápido

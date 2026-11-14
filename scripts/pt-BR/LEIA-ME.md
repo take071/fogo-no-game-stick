@@ -1,11 +1,12 @@
 # Scripts em português
 
-Cópias dos scripts de `scripts/` com **comentários e mensagens em português**. O comportamento é o mesmo; só mudam os textos (e as marcas de saída, ex.: `[corrigido]` no lugar de `[fix]`).
+Cópias dos scripts de `scripts/` com **comentários e mensagens em português**. O comportamento é o mesmo; só mudam os textos (e as marcas de saída: `[corrigido]` no lugar de `[fix]`, `[juntar]` no lugar de `[merge]`, `[pular]`, `[converter]`, `[manter]`, `[AVISO]`, `[ERRO]`, `[apagado]`, `[capa]`).
 
 | Português (aqui) | Original (inglês) |
 |---|---|
 | `ps1/converter_ps1.sh` | `ps1/convert_ps1.sh` |
-| `ps1/multidisco_pbp.sh` | `ps1/multidisc_pbp.sh` |
+| `ps1/ps1_pbp.py` | `ps1/ps1_pbp.py` (gêmeo em Python do conversor) |
+| `covers/capas_gamestick.py` | `covers/capas_gamestick.py` |
 | `covers/check_covers.py` | `covers/check_covers.py` |
 | `covers/capas_faltantes_manual.py` | `covers/missing_covers_manual.py` |
 | `config/definir_avanco_rapido.sh` | `config/set_fastforward.sh` |
@@ -25,11 +26,11 @@ Cópias dos scripts de `scripts/` com **comentários e mensagens em português**
 
 ## Uso
 
-Igual ao guia [07](../../docs/pt-BR/07-guia-de-scripts.md), trocando o nome do comando pelo da tabela acima. Exemplo:
+Igual ao guia [07](../../docs/pt-BR/07-scripts-guide.md), trocando o nome do comando pelo da tabela acima. Exemplo:
 
 ```bash
 export SD=/run/media/$USER/<LABEL>
 export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager
-scripts/pt-BR/ps1/converter_ps1.sh --dry-run
+scripts/pt-BR/ps1/converter_ps1.sh --dry-run            # ou: converter_ps1.sh /pasta/com/os/jogos
 scripts/pt-BR/debug/relatorio_consumo.sh
 ```

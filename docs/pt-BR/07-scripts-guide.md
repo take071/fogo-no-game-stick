@@ -1,6 +1,6 @@
 # 07 · Guia de uso dos scripts
 
-[← voltar](../../README.pt-BR.md)
+[← voltar](../../README.md)
 
 Todos os scripts ficam em `scripts/`. **Versões em português** (comentários e mensagens traduzidos, mesmo comportamento) ficam em `scripts/pt-BR/`; veja `scripts/pt-BR/LEIA-ME.md` para a tabela de nomes. As marcas da saída também são traduzidas nessas versões (ex.: `[corrigido]`, `[SEM BIN]`, `[converter]`, `[pular]`, `[ERRO]` no lugar de `[fix]`, `[NO BIN]`, `[conv]`, `[skip]`, `[ERROR]`). Os de `ps1/`, `covers/`, `config/` e `debug/` rodam **no seu PC Linux** com o cartão do stick conectado. Os de `timer/` rodam **dentro do stick**.
 
@@ -40,11 +40,13 @@ Entre na pasta do repositório (`cd ~/Downloads/fogo-no-game-stick`) e, se neces
 
 ## 2. Converter jogos de PS1 para PBP: `scripts/ps1/convert_ps1.sh`
 
-Coloque os jogos (`.cue` + `.bin`) em `$SD/game/ps1/` e rode. (O `.chd` **não** é lido pelo PSXPackager 1.6.2: extraia antes com `chdman extractcd`, do pacote `mame-tools`.)
+Coloque os jogos em `$SD/game/ps1/` (ou passe a pasta como argumento) e rode. Ele corrige os `.cue`, converte cada jogo e **junta os jogos de vários discos num único PBP**. O `.chd` **não** é lido pelo PSXPackager 1.6.2: o script usa o `chdman` (pacote `mame-tools`) se estiver instalado; senão imprime `[chd]` com o comando para extrair à mão. Há um gêmeo em Python, `scripts/ps1/ps1_pbp.py`, com as mesmas opções.
 
 ```bash
 scripts/ps1/convert_ps1.sh --dry-run    # mostra o que faria, não altera nada
-scripts/ps1/convert_ps1.sh              # corrige os .cue e converte; MANTÉM os originais
+scripts/ps1/convert_ps1.sh              # corrige os .cue, converte e junta discos; MANTÉM os originais
+scripts/ps1/convert_ps1.sh /outra/pasta # ou aponte a pasta com os jogos (busca nas subpastas)
+python3 scripts/ps1/ps1_pbp.py          # o gêmeo em Python: mesmas opções
 ```
 
 Leitura da saída:
@@ -55,8 +57,14 @@ Leitura da saída:
 | `[NO BIN] X.cue` | não achou `.bin` correspondente; esse jogo não será convertido |
 | `[conv] arquivo` | vai converter (ou convertendo) |
 | `[skip] arquivo` | já existe um `.PBP` com o mesmo nome |
-| `[chd] arquivo` | o PSXPackager não lê `.chd`; a linha mostra o comando `chdman` para extrair antes |
+| `[chd] arquivo` | `.chd` sem o `chdman` instalado: a linha mostra o comando `chdman` para extrair à mão |
 | `[ERROR] arquivo` | o PSXPackager falhou nesse jogo |
+| `[merge] Jogo (N discos)` | juntando os discos num PBP único |
+| `[WARN] Jogo: discos encontrados...` | conjunto incompleto (ex.: discos 1 e 3): não junta; `--force-partial` só se for de propósito |
+| `[bios] arquivo` | BIOS ignorada (nunca é convertida nem apagada) |
+| `[cover] A -> B` | a capa do Disco 1 foi copiada para o nome do jogo unificado |
+| `[keep] ...` | PBP inválido ou incompleto: os originais foram mantidos |
+| `[deleted]` / `[would delete]` | arquivo apagado / que seria apagado (`--delete`) |
 
 **Teste os PBPs no stick.** Só quando tiver certeza:
 
@@ -65,18 +73,22 @@ scripts/ps1/convert_ps1.sh --dry-run --delete   # lista o que seria apagado
 scripts/ps1/convert_ps1.sh --delete             # apaga .cue/.bin/.chd de quem tem PBP válido
 ```
 
-A apagada é definitiva. A BIOS (`scph*`, `bios*`) nunca é apagada.
+O apagar é definitivo. A BIOS (`scph*`, `bios*`) nunca é apagada. Em jogos multidisco, antes de apagar o script **extrai o último disco** do PBP unificado para provar que os N discos estão lá.
 
-### PBP multi-disco (testado pelo autor, funciona): `scripts/ps1/multidisc_pbp.sh`
+### Jogos de vários discos (o mecanismo foi testado no aparelho; o fluxo automático novo ainda não)
 
-Para jogos com vários discos, já convertidos em PBPs separados (`Nome (Disc 1).PBP`, `Nome (Disc 2).PBP`...):
+O próprio `convert_ps1.sh` junta os discos: ele agrupa os nomes com `(Disc N)`, `[Disk N]`, `(CD N)`, `(Disco N)` ou `(Disc N of M)` e gera **um** `Nome.PBP` na mesma pasta. Aceita discos em `.cue`, `.chd` (com `chdman`) ou já convertidos em PBPs separados, inclusive misturados.
 
 ```bash
-NAME="Tales of Destiny II (USA)" DISCS=3 scripts/ps1/multidisc_pbp.sh
+scripts/ps1/convert_ps1.sh --dry-run    # mostra os grupos e o que seria juntado
+scripts/ps1/convert_ps1.sh              # junta; mantém os originais
 ```
 
-Não precisa de flag de extração (no PSXPackager `-x` significa *sobrescrever*, não *extrair*; veja o doc 01). O resultado fica em `$SD/game/ps1/_tmp_multidisc/out/`. O script não apaga nem move nada: confira e teste o PBP novo antes de substituir os originais.
-
+- `Part 1` / `Part 2` **não** são tratados como discos.
+- Se faltar um disco (ex.: só os 1 e 3), ele avisa `[WARN]` e não junta.
+- A capa do Disco 1 é copiada para o nome do jogo unificado.
+- Extrair discos ocupa espaço: a área de trabalho é `~/.cache/gamestick_psx` (`PSX_TMP`), fora do cartão, e o script confere o espaço livre antes.
+- O antigo `multidisc_pbp.sh` (um jogo por vez, via `NAME=` e `DISCS=`) foi **substituído** por isso; veja o doc 10.
 ---
 
 ## 3. Capas
@@ -89,13 +101,22 @@ python3 scripts/covers/check_covers.py
 
 Imprime `[NO COVER] pasta/jogo` e o total no fim. A capa é um `.png`/`.jpg` com o **mesmo nome do jogo**, na mesma pasta (hipótese, veja o doc 02).
 
+**Baixar as capas de todos os jogos:** `scripts/covers/capas_gamestick.py` (aceita a raiz do cartão ou a pasta `game`; sem argumento usa `$SD`):
+
+```bash
+python3 scripts/covers/capas_gamestick.py --dry-run   # só mostra o que baixaria
+python3 scripts/covers/capas_gamestick.py             # baixa; nunca sobrescreve uma capa existente
+```
+
+Precisa do Pillow (`pip install -r requirements.txt`). Guarda o cache da API em `~/.cache/capas_gamestick` e grava os jogos sem capa em `~/capas_relatorio.txt`.
+
 **Baixar algumas capas à mão:** `scripts/covers/missing_covers_manual.py`. Edite a lista `TASKS` no topo do arquivo (repositórios, destino sem extensão e palavras do nome) e rode:
 
 ```bash
 python3 scripts/covers/missing_covers_manual.py
 ```
 
-Esse script depende do cache gerado pelo `capas_gamestick.py` (`~/.cache/capas_gamestick`), que ainda será adicionado ao repositório. Sem o cache, ele responde `[no candidate]`. Nunca sobrescreve uma capa existente.
+Esse script depende do cache gerado pelo `capas_gamestick.py` (`~/.cache/capas_gamestick`): rode-o uma vez antes. Sem o cache, ele responde `[no candidate]`. Nunca sobrescreve uma capa existente.
 
 **Capas do "00 Timer":** copie os PNGs de `assets/timer_covers/` para a pasta de cada console, com o mesmo nome do "jogo" falso (ex.: `gba.png` vira `00 Timer.png` em `$SD/game/gba/`).
 
@@ -117,6 +138,7 @@ Vale para os jogos de GBA abertos pelo `hook.sh`, mas o efeito aparece só nas *
 
 ```bash
 scripts/config/set_enhanced_resolution.sh enabled      # ou: disabled
+scripts/config/set_enhanced_resolution.sh check        # só confere se alguma linha neon perdeu a aspa final
 ```
 
 Depois de qualquer ajuste, ejete o cartão (abaixo) e teste no stick.
@@ -186,7 +208,7 @@ O `gtimer` (binário) não está no repositório; ele precisa estar em `$SD/time
 
 ## 8. Aba Histórico: `scripts/config/hist.py`, `make_mold.py`, `sel_limpa.sh`
 
-Explicação completa, instalação e avisos: [historico_do_game_stick.md](historico_do_game_stick.md). **Pelo PC** (precisa de `SD`):
+Explicação completa, instalação e avisos: [08-history-button.md](08-history-button.md). **Pelo PC** (precisa de `SD`):
 
 ```bash
 python3 scripts/config/hist.py show        # lista, mais recente primeiro (só lê)

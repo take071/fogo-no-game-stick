@@ -99,7 +99,7 @@ emit() { # $1 = pt|en ; $2 = output file
   if [ "$L" = pt ]; then cat > "$F" <<EOT
 # 08 · Consumo medido (RAM e CPU por jogo)
 
-[← voltar](../../README.pt-BR.md)
+[← voltar](../../README.md)
 
 > **Arquivo gerado automaticamente** por \`scripts/debug/consumption_report.sh\` (ou \`scripts/pt-BR/debug/relatorio_consumo.sh\`) a partir do \`timer/hook.log\` do cartão, em $(date +%F). Rode de novo depois de jogar para atualizar. Os números abaixo vêm do log; nada foi escrito à mão.
 
@@ -121,8 +121,8 @@ $(cat "$TMP/neon_$L.md")
 
 ## Limites desta medição
 
-- **Atribuição de amostras:** cada amostra vai para o último \`hook\` lido. Uma sessão marcada com ⚠ pode ter amostras de outro jogo (caso do PK GS, veja o [03](03-graficos-e-consumo.md)). Conferir: abrir **só** o jogo suspeito por ~2 min, sair pelo menu e gerar o relatório de novo.
-- \`rss\` pode incluir cache de arquivo mapeado (descartável); só o medidor \`smaps\` separa isso ([05](05-diagnostico-tela-preta-ram.md)).
+- **Atribuição de amostras:** cada amostra vai para o último \`hook\` lido. Uma sessão marcada com ⚠ pode ter amostras de outro jogo (caso do PK GS, veja o [03](03-graphics-and-consumption.md)). Conferir: abrir **só** o jogo suspeito por ~2 min, sair pelo menu e gerar o relatório de novo.
+- \`rss\` pode incluir cache de arquivo mapeado (descartável); só o medidor \`smaps\` separa isso ([05](05-diagnosis-black-screen-ram.md)).
 - Um aparelho, um cartão: não generalize para outros.
 EOT
   else cat > "$F" <<EOT
