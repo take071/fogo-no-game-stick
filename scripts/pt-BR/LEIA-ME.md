@@ -34,3 +34,5 @@ export PSX=$HOME/Downloads/psxpackager/psxpackager-linux-x64/psxpackager
 scripts/pt-BR/ps1/converter_ps1.sh --dry-run            # ou: converter_ps1.sh /pasta/com/os/jogos
 scripts/pt-BR/debug/relatorio_consumo.sh
 ```
+
+**Outros arquivos copiados do cartão (sem gêmeo):** `scripts/timer/ra_wrap.sh`, `scripts/timer/amostra_ps1.sh`, `scripts/debug/start_game.sh`, `scripts/debug/tools_diag.sh` e `scripts/debug/diag2.sh` também são cópias exatas do que roda no aparelho e por isso existem só uma vez, pela mesma razão do `hook.sh`.

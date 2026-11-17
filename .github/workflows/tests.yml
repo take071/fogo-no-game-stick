@@ -20,8 +20,8 @@ jobs:
       - name: Syntax
         run: |
           find scripts tests -name '*.py' -print0 | xargs -0 python3 -m py_compile
-          # hook*.sh must stay byte-identical to what runs on the device (no comments, see scripts/pt-BR/LEIA-ME.md)
-          find scripts tests -name '*.sh' ! -name 'hook.sh' ! -name 'hook_timer_restaurado.sh' -print0 | xargs -0 shellcheck -S warning
+          # these must stay byte-identical to what runs on the device (no comments, see scripts/pt-BR/LEIA-ME.md)
+          find scripts tests -name '*.sh' ! -name 'hook.sh' ! -name 'hook_timer_restaurado.sh' ! -name 'ra_wrap.sh' ! -name 'amostra_ps1.sh' ! -name 'start_game.sh' -print0 | xargs -0 shellcheck -S warning
 
       - name: Download PSXPackager
         run: |

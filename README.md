@@ -36,6 +36,7 @@ Aqui eu guardo tudo o que descobri e mexi no meu **Game Stick 4K Lite** (placa v
 | 8 | Tela cheia 16:9 (`aspect_ratio_index = 1`) | ✅ nos jogos de GBA · ❓ nos outros consoles depende do cfg interno | [06](docs/pt-BR/06-timer.md) |
 | 9 | **Segurar Start 3 s** na aba Histórico limpa o histórico e reinicia o menu | ✅ testado, em um aparelho só | [08](docs/pt-BR/08-history-button.md) |
 | 10 | "00 Timer" dentro da lista de **arcade** | ❌ larguei (o menu travava); o timer vale para o stick todo | [06](docs/pt-BR/06-timer.md) |
+| 11 | "Reiniciar o jogo" fecha o RetroArch nos jogos de **PS1** (no GBA reinicia normal) | 🔎 **não resolvido**, causa não confirmada; contorno: salvar/carregar estado | [11](docs/pt-BR/11-ps1-reset-bug.md) |
 
 As fotos que fui tirando ao longo dos testes estão em [`docs/fotos/`](docs/fotos) e comentadas em [09 – evolução em fotos](docs/pt-BR/09-photos-evolution.md).
 
@@ -69,21 +70,21 @@ As fotos que fui tirando ao longo dos testes estão em [`docs/fotos/`](docs/foto
 ## Estrutura do repositório
 
 ```
-docs/pt-BR/  docs/en/     capítulos 01–10 (mesmo conteúdo nos dois idiomas)
+docs/pt-BR/  docs/en/     capítulos 01–11 (mesmo conteúdo nos dois idiomas)
 docs/fotos/               fotos dos testes, na ordem em que as tirei
 scripts/ps1/              convert_ps1.sh, ps1_pbp.py (gêmeo em Python)
 scripts/covers/           capas_gamestick.py, check_covers.py, missing_covers_manual.py
 scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
-scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh
-scripts/timer/            hook.sh, run.sh (novo), run_original.sh, hook_timer_restaurado.sh
+scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh, tools_diag.sh, diag2.sh, start_game.sh
+scripts/timer/            hook.sh, run.sh (novo), run_original.sh, hook_timer_restaurado.sh, ra_wrap.sh, amostra_ps1.sh
 scripts/pt-BR/            as mesmas ferramentas com comentários e mensagens em português (veja o LEIA-ME.md)
+configs/card/            configs do cartão (gbx_mod.cfg, retroarch-core-options.cfg...) na mesma estrutura de pastas do cartão
 tests/                    testes com discos sintéticos, sem ROMs (bash tests/run_tests.sh)
 assets/timer_covers/      10 capas feitas com IA para as entradas do "00 Timer"
 ```
 
 ## Arquivos que ainda vou adicionar
 
-- `gbx_mod.cfg` e `ra_wrap.sh` (config de GBA e o wrapper com o medidor de RAM/CPU)
 - a versão **GBA** do `hook.sh` (a de `scripts/timer/hook.sh` é a do timer; falta juntar as duas)
 - o `gtimer` **não entra** de propósito (binário ARM fechado, sem fonte e sem licença conhecida)
 

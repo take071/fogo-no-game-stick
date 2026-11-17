@@ -19,7 +19,7 @@ check() {
 
 [ "$V" = check ] && { check; exit $?; }
 grep -q '^pcsx_rearmed_neon_enhancement_enable = ' "$F" || { echo "[error] key pcsx_rearmed_neon_enhancement_enable not found; nothing changed"; exit 1; }
-cp -n "$F" "$F.bak_pre_neon"
+[ -e "$F.bak_pre_neon" ] || cp "$F" "$F.bak_pre_neon"
 sed -i "s/^pcsx_rearmed_neon_enhancement_enable = .*/pcsx_rearmed_neon_enhancement_enable = \"$V\"/" "$F"
 grep -q "^pcsx_rearmed_neon_enhancement_enable = \"$V\"\$" "$F" || { echo "[error] change did not apply; backup: $F.bak_pre_neon"; exit 1; }
 check; rc=$?; sync; exit $rc

@@ -132,7 +132,7 @@ Both make an **automatic backup** (`.bak_pre_...`) on first run.
 scripts/config/set_fastforward.sh 2.5
 ```
 
-It applies to GBA games launched through `hook.sh`, but the effect only shows in **Pokémon battles** (map, menus and text stay normal). It requires `gbx_mod.cfg` on the card (to be added to the repo).
+It applies to GBA games launched through `hook.sh`, but the effect only shows in **Pokémon battles** (map, menus and text stay normal). It requires `gbx_mod.cfg` on the card (there is a copy in `configs/card/timer/gbx_mod.cfg`: it is `cfg_interno.cfg` with 3 values changed; see `configs/README.md`).
 
 **PS1 Enhanced Resolution:**
 
@@ -160,7 +160,7 @@ The script refuses non-removable devices, unmounts the partitions and powers the
 
 ## 6. Measure RAM and CPU: `scripts/debug/`
 
-They read `timer/hook.log`, which the stick fills while you play (the `ra_wrap.sh` and `amostra_ps1.sh` meters must be installed on the card). Flow: play ~2 min, quit through the menu, eject, plug into the PC, `export SD=...` and run:
+They read `timer/hook.log`, which the stick fills while you play (the `ra_wrap.sh` and `amostra_ps1.sh` meters, which are in `scripts/timer/`, must be installed in `timer/` on the card). Flow: play ~2 min, quit through the menu, eject, plug into the PC, `export SD=...` and run:
 
 ```bash
 scripts/debug/avg_per_game.sh      # average RAM/CPU per game
@@ -178,6 +178,8 @@ scripts/debug/consumption_report.sh --lang en     # English only
 
 It only reads the card. Sessions whose max RAM differs a lot for the same game are flagged ⚠ (possible mis-attribution). Then review and commit the generated files.
 
+**Investigation files (record):** `tools_diag.sh`, `diag2.sh` and `start_game.sh` (the card-root copy with the diagnostic line) are in `scripts/debug/`. The stick does **not** use them (doc 04); they are here only as a record of what was measured. Cleaning them off the card is in doc 04.
+
 ---
 
 ## 7. Timer scripts on the stick: `scripts/timer/hook.sh` and `run.sh`
@@ -192,7 +194,7 @@ cp scripts/timer/run.sh "$SD/timer/run.sh"
 sync
 ```
 
-`DUR` (seconds) and `PAUSAR` are at the top of the file. `PAUSAR=0` brings the flicker back. Details and check commands: doc 06-1. To restore: `cp "$SD/timer/run.sh.bak" "$SD/timer/run.sh"`.
+`DUR` (seconds) and `PAUSAR` are at the top of the file. `PAUSAR=0` brings the flicker back. Details and check commands: doc 06. To restore: `cp "$SD/timer/run.sh.bak" "$SD/timer/run.sh"`.
 
 **`hook.sh`** is the timer version:
 
@@ -203,6 +205,8 @@ cp "$SD/timer/hook.sh" "$SD/timer/hook.sh.bak_before_update3"   # backup REQUIRE
 ⚠️ **Do not copy this repo's `hook.sh` over yours** without reading doc 06: it is the timer version and may remove fast-forward from the GBA games. Merge both first. To restore: `cp "$SD/timer/hook.sh.bak_before_update3" "$SD/timer/hook.sh"`.
 
 The `gtimer` binary is not in the repo; it must be at `$SD/timer/gtimer`.
+
+`scripts/timer/` also holds two meters: **`ra_wrap.sh`** (logs CPU, RAM and `smaps` of RetroArch to `hook.log` and `smaps_log.txt`, then runs RetroArch) and **`amostra_ps1.sh`** (the same for PS1, with `pico`). On the card they live in `timer/`. This repo's `hook.sh` (the timer version) does **not** call them; the GBA version of `hook.sh` does, and it is not here yet. They are exact copies of the card's files, without comments, so they stay identical.
 
 ---
 

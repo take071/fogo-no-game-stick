@@ -62,6 +62,8 @@ sync
 
 ## Limpeza que ainda falta
 
+Os arquivos de teste citados aqui estão guardados no repositório só como registro (`scripts/debug/tools_diag.sh`, `scripts/debug/diag2.sh`, `scripts/debug/start_game.sh` e `configs/card/timer/ff.cfg`). No cartão podem ser apagados.
+
 - `tools_diag.sh` e a linha `sh /sdcard/tools_diag.sh` no `start_game.sh` do cartão (`cp start_game.sh.bak_diag start_game.sh`).
 - `timer/diag2.sh`, `timer/ff.cfg`, `timer/snippet*.txt`, `timer/ev.event*`, `timer/ra.err`.
 - Conferir o `hook.sh` com `sed -n 4,6p timer/hook.sh`: a linha do `evtest` e o `-v` devem ter saído.

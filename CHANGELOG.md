@@ -1,3 +1,21 @@
+# Atualização de 16 de novembro de 2026: arquivos do aparelho
+
+## Entraram no repositório (cópias exatas do cartão, sem alteração)
+- `scripts/timer/ra_wrap.sh` e `scripts/timer/amostra_ps1.sh`: medidores de CPU e RAM (o de PS1 grava também o pico).
+- `scripts/debug/tools_diag.sh`, `diag2.sh` e `start_game.sh`: registro da investigação do doc 04. O stick não os usa.
+- `configs/card/` (mesma estrutura de pastas do cartão): `timer/gbx_mod.cfg`, `timer/cfg_interno.cfg`, `timer/ff.cfg`, `gbx66.cfg` e `retro_lib/retroarch-core-options.cfg`, com `configs/README.md`. O `gbx_mod.cfg` é o `cfg_interno.cfg` com 3 valores alterados (medido com `diff`).
+- O `hook.sh` enviado é idêntico ao de `scripts/timer/`: nada a atualizar.
+- **Novo capítulo 11** (`docs/pt-BR/11-ps1-reset-bug.md` e `docs/en/11-ps1-reset-bug.md`): "Reiniciar o jogo" fecha o RetroArch nos jogos de PS1. Problema **não resolvido**; o doc traz o contorno e como descobrir a causa. Entrou também como linha 11 da tabela do README.
+
+## Correções
+- `set_fastforward.sh` e `set_enhanced_resolution.sh` (e os gêmeos em português): trocam `cp -n`, que avisa "comportamento não portátil" nos coreutils novos, por um teste `[ -e ]`. Testados nos `.cfg` reais: só as linhas certas mudam e os valores originais voltam byte a byte.
+- Docs: removida a referência solta ao doc "06-1" (apagado antes) no guia de scripts; README, doc 04, doc 07 e LEIA-ME atualizados. O CI não roda mais shellcheck em `ra_wrap.sh`, `amostra_ps1.sh` e `start_game.sh`, que precisam ficar idênticos aos do aparelho.
+
+## Ainda pendente
+- A versão de GBA do `hook.sh` (a que chama `ra_wrap.sh` com o `gbx_mod.cfg`).
+
+---
+
 # Atualização de 13 de novembro de 2026: scripts de PS1 e capas, testes e docs
 
 ## Scripts trocados pelos novos (cada um com gêmeo em `scripts/pt-BR/`)

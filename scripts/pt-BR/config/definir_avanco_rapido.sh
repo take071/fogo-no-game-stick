@@ -10,7 +10,7 @@ V="${V/,/.}"
 F="$SD/timer/gbx_mod.cfg"
 [ -f "$F" ] || { echo "[erro] $F não encontrado"; exit 1; }
 grep -q '^fastforward_ratio = ' "$F" || { echo "[erro] não há linha 'fastforward_ratio = ' em $F; nada foi alterado"; exit 1; }
-cp -n "$F" "$F.bak_pre_ff"
+[ -e "$F.bak_pre_ff" ] || cp "$F" "$F.bak_pre_ff"
 VAL=$(LC_ALL=C printf '%.6f' "$V")
 sed -i "s/^fastforward_ratio = .*/fastforward_ratio = \"$VAL\"/" "$F"
 grep -q "^fastforward_ratio = \"$VAL\"\$" "$F" || { echo "[erro] a alteração não foi aplicada; backup: $F.bak_pre_ff"; exit 1; }

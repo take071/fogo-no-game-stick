@@ -36,6 +36,7 @@ This is where I keep everything I found out and changed on my **Game Stick 4K Li
 | 8 | Full screen 16:9 (`aspect_ratio_index = 1`) | ✅ on GBA games · ❓ other consoles depend on the internal cfg | [06](docs/en/06-timer.md) |
 | 9 | **Hold Start for 3 s** on the History tab wipes history and restarts the menu | ✅ tested, on one device only | [08](docs/en/08-history-button.md) |
 | 10 | "00 Timer" inside the **arcade** list | ❌ gave up (menu hung); the timer works across the whole stick | [06](docs/en/06-timer.md) |
+| 11 | "Restart game" closes RetroArch on **PS1** games (it restarts normally on GBA) | 🔎 **not solved**, cause not confirmed; workaround: save/load state | [11](docs/en/11-ps1-reset-bug.md) |
 
 Photos I took along the way are in [`docs/fotos/`](docs/fotos), with captions in [09 – evolution in photos](docs/en/09-photos-evolution.md).
 
@@ -69,21 +70,21 @@ Photos I took along the way are in [`docs/fotos/`](docs/fotos), with captions in
 ## Repository layout
 
 ```
-docs/en/  docs/pt-BR/     chapters 01–10 (same content in both languages)
+docs/en/  docs/pt-BR/     chapters 01–11 (same content in both languages)
 docs/fotos/               photos from the tests, in the order I took them
 scripts/ps1/              convert_ps1.sh, ps1_pbp.py (Python twin)
 scripts/covers/           capas_gamestick.py, check_covers.py, missing_covers_manual.py
 scripts/config/           set_fastforward.sh, set_enhanced_resolution.sh, eject.sh, hist.py, make_mold.py, sel_limpa.sh
-scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh
-scripts/timer/            hook.sh, run.sh (new), run_original.sh, hook_timer_restaurado.sh
+scripts/debug/            avg_per_game.sh, per_session.sh, consumption_report.sh, diag_swap.sh, tools_diag.sh, diag2.sh, start_game.sh
+scripts/timer/            hook.sh, run.sh (new), run_original.sh, hook_timer_restaurado.sh, ra_wrap.sh, amostra_ps1.sh
 scripts/pt-BR/            the same tools with comments and messages in Portuguese (see LEIA-ME.md)
+configs/card/            card configs (gbx_mod.cfg, retroarch-core-options.cfg...) in the same folder layout as the card
 tests/                    tests with synthetic discs, no ROMs (bash tests/run_tests.sh)
 assets/timer_covers/      10 AI-generated covers for the "00 Timer" entries
 ```
 
 ## Files I still have to add
 
-- `gbx_mod.cfg` and `ra_wrap.sh` (GBA config and the wrapper with the RAM/CPU sampler)
 - the *GBA* version of `hook.sh` (the one in `scripts/timer/hook.sh` is the timer version; they need to be merged)
 - `gtimer` is **not** included on purpose (closed ARM binary, no source, unknown license)
 

@@ -62,6 +62,8 @@ sync
 
 ## Cleanup still to do
 
+The test files mentioned here are kept in the repo only as a record (`scripts/debug/tools_diag.sh`, `scripts/debug/diag2.sh`, `scripts/debug/start_game.sh` and `configs/card/timer/ff.cfg`). On the card they can be deleted.
+
 - `tools_diag.sh` and the `sh /sdcard/tools_diag.sh` line in the card's `start_game.sh` (`cp start_game.sh.bak_diag start_game.sh`).
 - `timer/diag2.sh`, `timer/ff.cfg`, `timer/snippet*.txt`, `timer/ev.event*`, `timer/ra.err`.
 - Check `hook.sh` with `sed -n 4,6p timer/hook.sh`: the `evtest` line and the `-v` should be gone.
